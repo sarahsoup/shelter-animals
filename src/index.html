@@ -1,10 +1,31 @@
-<!doctype html>
-<html>
-	<head>
-		<meta charset='utf-8'>
-   	 	<meta name="viewport" content="width=device-width">
-	</head>
-	<body>
-		<script src='bundle.js' type='text/javascript'></script>
-	</body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset='utf-8'>
+  <meta name="viewport" content="width=device-width">
+</head>
+<body>
+<div class="container">
+  <div class="row" id="idle">
+    <div class="col-lg-12 idle-container">
+      <h1>a month at an animal shelter</h1>
+      <a id="btn-idle">explore</a>
+    </div>
+  </div>
+  <div class="row hidden" id="content">
+    <div class="col-sm-9" id="visualization">
+      <h1 id="title">a month in an animal shelter</h1>
+      <h1 id="timeCount"></h1>
+    </div>
+    <div class="col-sm-3" id="supplemental">
+      <div id="summary"></div>
+      <div id="bar-div"></div>
+      <div id="data-info"></div>
+    </div>
+  </div>
+</div>
+
+<script src='bundle.js' type='text/javascript'></script>
+
+</body>
 </html>
