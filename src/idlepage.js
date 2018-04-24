@@ -1,4 +1,5 @@
 import * as d3 from 'd3';
+import interactions from './interact';
 import './style.css';
 
 function inactivityTime() {
@@ -9,7 +10,7 @@ function inactivityTime() {
 
     function resetTimer() {
         clearTimeout(t);
-        t = setTimeout(idle, 120000) //two minutes...
+        t = setTimeout(idle, 60000) //two minutes...
     }
 
     function idle() {
@@ -20,6 +21,7 @@ function inactivityTime() {
 function createIdlePage(){
 
   console.log('timed out!');
+  interactions.unhighlight();
   d3.select('#idle')
     .classed('hidden',false);
   d3.select('#content')
@@ -32,4 +34,8 @@ function createIdlePage(){
   d3.select('#timeCount')
     .style('opacity',0);
 
+}
+
+export default{
+  inactivityTime
 }

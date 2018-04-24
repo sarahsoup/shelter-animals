@@ -39,6 +39,7 @@
   "dependencies": {
     "bootstrap": "^4.0.0",
     "d3": "^5.1.0",
+    "d3-interpolate-path": "^2.0.1",
     "react": "^16.0.0"
   },
   "babel": {

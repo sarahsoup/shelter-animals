@@ -1,6 +1,10 @@
 import * as d3 from 'd3';
 import './style.css';
 
+import flowFunctions from './flow';
+import durFunctions from './duration';
+import interactions from './interact';
+
 const barH = 30;
 const barW = 4;
 let colW;
@@ -9,41 +13,47 @@ d3.select('#visualization')
   .append('g')
   .attr('id','btn-group-views');
 
-d3.select('#btn-group-views')
-  .append('button')
-  .attr('class','btn-views')
-  .attr('id','btn-views-flow')
-  .html('flow')
-  .classed('btn-clicked',true)
-  .on('click',function(d){
-    d3.selectAll('.btn-views').classed('btn-clicked',false);
-    d3.select(this).classed('btn-clicked',true);
-    // dispatch.call('unhighlight'); //causes arcs and labels to immediately reappear
-    redrawFlow();
-    generateSummary('flow');
-  });
+function createViewBtns(sumObj,scalesObj,viewsObj){
 
-d3.select('#btn-group-views')
-  .append('button')
-  .attr('class','btn-views')
-  .attr('id','btn-views-duration')
-  .html('duration')
-  .on('click',function(d){
-    d3.selectAll('.btn-views').classed('btn-clicked',false);
-    d3.select(this).classed('btn-clicked',true);
-    dispatch.call('unhighlight');
-    drawDuration();
-    generateSummary('duration');
-  });
+  colW = d3.select('#bar-div').node().clientWidth;
 
-function addDataInfo(){
+  d3.select('#btn-group-views')
+    .append('button')
+    .attr('class','btn-views')
+    .attr('id','btn-views-flow')
+    .html('flow')
+    .classed('btn-clicked',true)
+    .on('click',function(d){
+      d3.selectAll('.btn-views').classed('btn-clicked',false);
+      d3.select(this).classed('btn-clicked',true);
+      // dispatch.call('unhighlight'); //causes arcs and labels to immediately reappear
+      flowFunctions.redrawFlow(scalesObj,viewsObj,barH);
+      generateSummary('flow',sumObj);
+    });
+
+  d3.select('#btn-group-views')
+    .append('button')
+    .attr('class','btn-views')
+    .attr('id','btn-views-duration')
+    .html('duration')
+    .on('click',function(d){
+      d3.selectAll('.btn-views').classed('btn-clicked',false);
+      d3.select(this).classed('btn-clicked',true);
+      //dispatch.call('unhighlight');
+      interactions.unhighlight();
+      durFunctions.drawDuration(scalesObj,barH,viewsObj.pathOpacityDur);
+      generateSummary('duration',sumObj);
+    });
+}
+
+function addDataInfo(sideW){
   d3.select('#data-info')
     .attr('width',sideW)
     .attr('height',50)
     .html('data graciously provided by Animal Rescue League, representing the animal population at their three shelters collectively for January 2018');
 }
 
-function makeBarChart(aggIntake,aggOutcome,bins){
+function makeBarChart(aggIntake,aggOutcome,bins,obj,months,timeCount,maxDate){
 
   d3.select('#bar-div')
     .style('margin','20px 0px 20px 0px')
@@ -67,21 +77,21 @@ function makeBarChart(aggIntake,aggOutcome,bins){
     })
     .attr('height',(barH*2.5));
 
-  barSvg = d3.select('#bar-svg')
+  const barSvg = d3.select('#bar-svg')
     .append('g')
     .attr('id','bar-group')
     .attr('transform','translate(0,'+(barH/4)+')');
 
-  scaleTimeBar
+  obj.scaleTimeBar
     .range([(colW*.1),(colW*.9)]);
-  scaleLosHist
+  obj.scaleLosHist
     .range([(colW*.1),(colW*.75)]);
-  scaleCount
+  obj.scaleCount
     .range([0,barH]);
-  scaleHistCount
+  obj.scaleHistCount
     .range([0,barH*2]);
 
-  context = barSvg.append('g')
+  const context = barSvg.append('g')
     .attr('id','bar-context');
 
   context.append('text')
@@ -125,16 +135,18 @@ function makeBarChart(aggIntake,aggOutcome,bins){
     .append('rect')
     .attr('class','bars-intake')
     .attr('id',function(d){ return 'bar-intake-'+d.key; })
-    .attr('x',function(d){ return scaleTimeBar(d.key)-(barW/2); })
-    .attr('y',function(d){ return barH-scaleCount(d.value); })
+    .attr('x',function(d){ return obj.scaleTimeBar(d.key)-(barW/2); })
+    .attr('y',function(d){ return barH-obj.scaleCount(d.value); })
     .attr('width',(colW*.8)/32)
-    .attr('height',function(d){ return scaleCount(d.value); })
+    .attr('height',function(d){ return obj.scaleCount(d.value); })
     .style('cursor','pointer')
     .on('mouseenter',function(d){
-      dispatch.call('highlight:date', null, d.key);
+      // dispatch.call('highlight:date', null, d.key);
+      interactions.highlightDate(d.key);
     })
     .on('mouseleave',function(d){
-      dispatch.call('unhighlight');
+      // dispatch.call('unhighlight');
+      interactions.unhighlight();
     });
 
   barSvg.selectAll('.bars-outcome')
@@ -143,16 +155,18 @@ function makeBarChart(aggIntake,aggOutcome,bins){
     .append('rect')
     .attr('class','bars-outcome')
     .attr('id',function(d){ return 'bar-outcome-'+d.key; })
-    .attr('x',function(d){ return scaleTimeBar(d.key)-(barW/2); })
+    .attr('x',function(d){ return obj.scaleTimeBar(d.key)-(barW/2); })
     .attr('y',barH+1)
     .attr('width',(colW*.8)/32)
-    .attr('height',function(d){ return barH-scaleCount(d.value); })
+    .attr('height',function(d){ return barH-obj.scaleCount(d.value); })
     .style('cursor','pointer')
     .on('mouseenter',function(d){
-      dispatch.call('highlight:date', null, d.key);
+      // dispatch.call('highlight:date', null, d.key);
+      interactions.highlightDate(d.key);
     })
     .on('mouseleave',function(d){
-      dispatch.call('unhighlight');
+      // dispatch.call('unhighlight');
+      interactions.unhighlight();
     });
 
   barSvg.selectAll('.bars-duration')
@@ -160,13 +174,13 @@ function makeBarChart(aggIntake,aggOutcome,bins){
     .enter()
     .append('rect')
     .attr('class','bars-duration')
-    .attr('x',function(d){ return scaleLosHist(d.x0)/*-(barW/2)*/; })
+    .attr('x',function(d){ return obj.scaleLosHist(d.x0)/*-(barW/2)*/; })
     .attr('y',barH*2)
     .attr('width',(colW*.6)/bins.length)
     .attr('height',0);
 
-  tooltip = barSvg.append('g')
-    .attr('id','bar-counts');
+  // tooltip = barSvg.append('g')
+  //   .attr('id','bar-counts');
 
   // barSvg.append('g')
   //   .attr('class','axis-bars')
@@ -203,7 +217,7 @@ function makeBarChart(aggIntake,aggOutcome,bins){
 
 };
 
-function createAnimalBtns(type){
+function createAnimalBtns(type,sideW,scaleColor){
   let intakeSet = new Set();
   let outcomeSet = new Set();
 
@@ -215,7 +229,7 @@ function createAnimalBtns(type){
     .style('margin','20px 0px 10px 0px')
     .style('padding-left','10px');
 
-  btnSvg = d3.select('#supplemental')
+  const btnSvg = d3.select('#supplemental')
     .append('svg')
     .attr('width',sideW)
     .attr('height',70)
@@ -272,10 +286,12 @@ function createAnimalBtns(type){
     .on('click',function(d){
       if(d3.select(this).classed('btn-animal-clicked')){
         d3.select(this).classed('btn-animal-clicked',false);
-        dispatch.call('unhighlight');
+        // dispatch.call('unhighlight');
+        interactions.unhighlight();
       }else{
         d3.select(this).classed('btn-animal-clicked',true);
-        dispatch.call('highlight:type', null, d.key);
+        // dispatch.call('highlight:type', null, d.key);
+        interactions.highlightType(d.key);
         highlightType(d.key);
       }
     });
@@ -292,7 +308,7 @@ function createStories(){
     .style('margin','20px 0px 10px 0px')
     .style('padding-left','10px');
 
-  stories = d3.select('#supplemental')
+  const stories = d3.select('#supplemental')
     .append('g')
     .attr('id','btn-stories');
 
@@ -329,7 +345,8 @@ function createStories(){
     .on('click',function(d){
       if(d3.select(this).classed('btn-clicked')){
         d3.select(this).classed('btn-clicked',false);
-        dispatch.call('unhighlight');
+        // dispatch.call('unhighlight');
+        interactions.unhighlight();
       }else{
         d3.selectAll('.btn-stories').classed('btn-clicked',false);
         d3.select(this).classed('btn-clicked',true);
@@ -339,7 +356,7 @@ function createStories(){
 
 }
 
-function summaryInformation(){
+function summaryInformation(sideW,obj){
 
   summary = d3.select('#summary')
     .attr('width',sideW)
@@ -366,11 +383,11 @@ function summaryInformation(){
     .style('padding-top','10px')
     .style('margin-bottom',0);
 
-  generateSummary('flow');
+  generateSummary('flow',obj);
 
 }
 
-function generateSummary(view){
+function generateSummary(view,obj){
   d3.select('#animal-img')
     // .attr('height',0)
     .attr('src',null);
@@ -382,13 +399,13 @@ function generateSummary(view){
     d3.select('#summary-text')
       .style('margin-left','0%')
       .style('margin-right','5%')
-      .html(totalCount + ' total animals<br/>'+
-        intakePrior + ' in shelter at beginning of month<br/>'+
-        intakeDuring + ' entered shelter during month<br/>'+
-        outcomeDuring + ' left shelter during month<br/>'+
-        typeMost + ' were the most common animal<br/>'+
-        'most animals were ' + labelMap.get(intakeMost) + '<br/>'+
-        'and most were ' + labelMap.get(outcomeMost));
+      .html(obj.totalCount + ' total animals<br/>'+
+        obj.intakePrior + ' in shelter at beginning of month<br/>'+
+        obj.intakeDuring + ' entered shelter during month<br/>'+
+        obj.outcomeDuring + ' left shelter during month<br/>'+
+        obj.typeMost + ' were the most common animal<br/>'+
+        'most animals were ' + obj.labelMap.get(obj.intakeMost) + '<br/>'+
+        'and most were ' + obj.labelMap.get(obj.outcomeMost));
   }else if(view == 'duration'){
     // d3.select('#summary-title')
     //   .style('text-align','left')
@@ -396,19 +413,20 @@ function generateSummary(view){
     d3.select('#summary-text')
       .style('margin-left','0%')
       .style('margin-right','5%')
-      .html(totalCount + ' total animals<br/>'+
-        intakePrior + ' in shelter at beginning of month<br/>'+
-        intakeDuring + ' entered shelter during month<br/>'+
-        outcomeDuring + ' left shelter during month<br/>'+
-        typeMost + ' were the most common animal<br/>'+
-        'the shortest length of stay was ' + losExtent[0] + ' days<br/>'+
-        'the longest length of stay was ' + losExtent[1] + ' days');
+      .html(obj.totalCount + ' total animals<br/>'+
+        obj.intakePrior + ' in shelter at beginning of month<br/>'+
+        obj.intakeDuring + ' entered shelter during month<br/>'+
+        obj.outcomeDuring + ' left shelter during month<br/>'+
+        obj.typeMost + ' were the most common animal<br/>'+
+        'the shortest length of stay was ' + obj.losExtent[0] + ' days<br/>'+
+        'the longest length of stay was ' + obj.losExtent[1] + ' days');
   }else{
     d3.select('#summary-text').html(null);
   }
 }
 
 function highlightType(type){
+  let typeName;
   if(type == 'CAT'){ typeName = 'cats'; }
   else if(type == 'DOG'){ typeName = 'dogs'; }
   else if(type == 'OTHER'){ typeName = 'furries'; }
@@ -453,7 +471,8 @@ function highlightStory(name){
     type = 'CAT';
   }
 
-  dispatch.call('highlight:id', null, id, type, name);
+  // dispatch.call('highlight:id', null, id, type, name);
+  interactions.highlightId(id,type,name);
 
   d3.select('#animal-img')
     .attr('src',function(){
@@ -511,4 +530,18 @@ function highlightStory(name){
         return 'Thalia is a 6-month-old cat surrended through the Healthy Moms Happy Litters program, where an owner gets their dog or cat spayed/neutered and surrenders their litter for adoption.'
       }
     })
+}
+
+
+export default{
+  createViewBtns,
+  addDataInfo,
+  makeBarChart,
+  createAnimalBtns,
+  summaryInformation,
+  generateSummary,
+  highlightType,
+  barH,
+  barW,
+  colW
 }

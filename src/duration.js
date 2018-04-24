@@ -1,7 +1,9 @@
 import * as d3 from 'd3';
+import * as interpolator from 'd3-interpolate-path';
+
 import './style.css';
 
-function drawDuration(){
+function drawDuration(scales,barH,pathOpacityDur){
 
   d3.select('#timeCount')
     .html('duration');
@@ -50,21 +52,23 @@ function drawDuration(){
 
   // new path function
   const line = d3.line()
-    .y(function(d){ return scaleTime(d.dy) })
-    .x(function(d){ return scaleLos(d.dx) })
+    .y(function(d){ return scales.scaleTime(d.dy) })
+    .x(function(d){ return scales.scaleLos(d.dx) })
     .curve(d3.curveBundle.beta(0.85));
 
   d3.selectAll('.paths')
     .transition()
     .duration(5000)
     .attrTween('d',function(d){
-      var previous = d3.select(this).attr('d');
-      var current = line(d);
-      return d3.interpolatePath(previous, current);
+      const previous = d3.select(this).attr('d');
+      const current = line(d);
+      return interpolator.interpolatePath(previous, current);
     })
     .style('opacity',pathOpacityDur);
 
   // visible axis
+  const svg = d3.select('#viz-svg-g');
+
   svg.selectAll('.axis')
     .transition()
     .delay(3000)
@@ -82,8 +86,8 @@ function drawDuration(){
     .transition()
     .delay(2000)
     .duration(1000)
-    .attr('y',function(d){ return (barH*2)-scaleHistCount(d.length); })
-    .attr('height',function(d){ return scaleHistCount(d.length); })
+    .attr('y',function(d){ return (barH*2)-scales.scaleHistCount(d.length); })
+    .attr('height',function(d){ return scales.scaleHistCount(d.length); })
 
   d3.select('#axis-count')
     .style('opacity',1);
@@ -92,4 +96,8 @@ function drawDuration(){
   //   .attr('transform', 'translate(0,' + (barH*2) + ')')
   //   .call(d3.axisBottom(scaleHistCount));
 
+}
+
+export default{
+  drawDuration
 }

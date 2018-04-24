@@ -1,15 +1,10 @@
-console.log('index.js!');
-
 import * as d3 from 'd3';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './style.css';
 
-import './idlepage.js';
-import drawFlow from './flow.js';
-import './duration.js';
-import './sidebar.js';
-import './d3-interpolate-path.js';
-
+import idleFunctions from './idlepage';
+import flowFunctions from './flow';
+import sideFunctions from './sidebar';
 
 let w, h, radius, svg, sideW;
 const m = { t: 10, b: 10, l: 10, r: 10};
@@ -17,7 +12,6 @@ const labelStart = 30;
 const outer = 40;
 const inner = 46;
 const pi = Math.PI;
-const dispatch = d3.dispatch('highlight:flow','highlight:type','highlight:id','highlight:date','unhighlight');
 const pathOpacity = 0.2;
 const pathOpacityDur = 0.8;
 let timeCount = new Date('1/1/2018');
@@ -26,6 +20,8 @@ const dayDuration = 500;
 const months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
 let exploreCount = 0;
 let dayDelay, dayOffset, count, prevType, i;
+let summaryVarObj = {};
+
 // type to desc mapping
 const labelMap = new Map();
 
@@ -42,8 +38,6 @@ d3.select('#timeCount')
   .style('opacity',0)
   .html(months[timeCount.getMonth()]);
 
-// inactivityTime();
-
 //https://material.io/guidelines/style/color.html#color-color-palette
 const scaleColor = d3.scaleOrdinal()
   .domain(['DOG','LIVESTOCK','BIRD','OTHER','CAT'])
@@ -57,6 +51,10 @@ const scaleTime = d3.scaleTime();
 const scaleTimeBar = d3.scaleTime();
 const scaleCount = d3.scaleLinear();
 const scaleIntake = d3.scaleTime();
+const interactVarObj = { pathOpacity, pathOpacityDur, scaleColor };
+
+
+idleFunctions.inactivityTime();
 
 d3.select('#btn-idle')
   .on('click',function(){
@@ -67,7 +65,16 @@ d3.select('#btn-idle')
     if(exploreCount == 0){
       runData();
     }else{
-      animateFlow();
+      const reanimateObj = {
+        dayDuration,
+        pathOpacity,
+        months,
+        timeCount,
+        scaleCount,
+        scaleTimeBar
+      }
+      flowFunctions.animateFlow(reanimateObj, sideFunctions.barH, sideFunctions.barW, sideFunctions.colW);
+      sideFunctions.generateSummary('flow',summaryVarObj);
     }
     exploreCount++;
   });
@@ -161,10 +168,10 @@ function runData(){
     .attr('width', w)
     .attr('height',h-100)
     .append('g')
+    .attr('id','viz-svg-g')
     .attr('transform','translate(' + ((w/2) - 50) + ',' + ((h/2) - 20) + ')');
 
   d3.csv('./data/arl_jan18.csv', parse).then(function(data){
-    console.log(data);
 
     // sort data for intake
     data.sort(function(a,b){
@@ -314,7 +321,6 @@ function runData(){
     //   .style('text-anchor','end')
     //   .style('fill','#A9A9A9');
 
-
     const aggIntake = d3.nest()
       .key(function(d){ return d.intake_date; })
       .rollup(function(d){ return d.length; })
@@ -354,236 +360,62 @@ function runData(){
 
     const losExtent = d3.extent(data, function(d){ return d.los_new });
 
-    drawFlow(data,intake,outcome);
-    // summaryInformation();
-    // makeBarChart(aggIntake,aggOutcome,bins);
-    // createAnimalBtns(type);
-    // addDataInfo();
+    const flowVarObj = {
+      radius,
+      inner,
+      outer,
+      pi,
+      dayDuration,
+      oneDay,
+      labelStart,
+      labelMap,
+      pathOpacity,
+      months,
+      timeCount,
+      scaleTime,
+      scaleColor,
+      w,
+      h
+    }
+
+    summaryVarObj.totalCount = totalCount;
+      summaryVarObj.intakePrior = intakePrior;
+      summaryVarObj.intakeDuring = intakeDuring;
+      summaryVarObj.outcomeDuring = outcomeDuring;
+      summaryVarObj.typeMost = typeMost;
+      summaryVarObj.intakeMost = intakeMost;
+      summaryVarObj.outcomeMost = outcomeMost;
+      summaryVarObj.losExtent = losExtent;
+      summaryVarObj.labelMap = labelMap;
+
+    const scalesObj = {
+      scaleLos,
+      scaleLosHist,
+      scaleHistCount,
+      scaleTime,
+      scaleTimeBar,
+      scaleCount,
+      scaleIntake
+    }
+
+    const viewsObj = {
+      pathOpacity,
+      pathOpacityDur,
+      dayDuration
+    }
+
+    flowFunctions.drawFlow(data,intake,outcome,flowVarObj);
+    sideFunctions.createViewBtns(summaryVarObj,scalesObj,viewsObj);
+    sideFunctions.summaryInformation(sideW,summaryVarObj);
+    sideFunctions.makeBarChart(aggIntake,aggOutcome,bins,scalesObj,months,timeCount,maxDate);
+    sideFunctions.createAnimalBtns(type,sideW,scaleColor);
+    sideFunctions.addDataInfo(sideW);
 
   })
 
 }
 
-dispatch.on('highlight:flow',function(type){
-  const animalSet = new Set();
-  intakeSet = new Set();
-  outcomeSet = new Set();
-
-  generateSummary('flow');
-
-  // highlight paths
-  svg.selectAll('.paths')
-    .transition()
-    .style('opacity',function(d){
-      if(d[0].data.intake_type == type || d[0].data.outcome_type == type){
-        intakeSet.add(d[0].data.intake_type);
-        outcomeSet.add(d[0].data.outcome_type);
-        animalSet.add(d[0].data.type);
-        if(d3.select('#btn-views-flow').classed('btn-clicked')){
-          return pathOpacity + 0.2;
-        }
-        else if(d3.select('#btn-views-duration').classed('btn-clicked')){
-          return pathOpacityDur;
-        }
-      }
-      else{ return 0.02; }
-    });
-
-  // highlight arc and label
-  svg.selectAll('.arc')
-    .transition()
-    .style('opacity',function(d){
-      if(d.data.key == type){ return 1; }
-      else if(intakeSet.has(d.data.key) && outcomeSet.has(type)){ return 1; }
-      else if(outcomeSet.has(d.data.key) && intakeSet.has(type)){ return 1; }
-      else{ return 0.2; }
-    });
-  svg.selectAll('.label')
-    .transition()
-    .style('opacity',function(d){
-      if(d.data.key == type){ return 1; }
-      else if(intakeSet.has(d.data.key) && outcomeSet.has(type)){ return 1; }
-      else if(outcomeSet.has(d.data.key) && intakeSet.has(type)){ return 1; }
-      else{ return 0.2; }
-    });
-
-  // highlight buttons
-  d3.selectAll('.animal-btn-group')
-    .transition()
-    .style('opacity',function(d){
-      if(animalSet.has(d.key)){ return 1; }
-      else{ return 0.3; }
-    });
-
-  d3.selectAll('.icon-labels')
-    .transition()
-    .style('fill',function(d){
-      if(animalSet.has(d.key)){ return scaleColor(d.key); }
-      else{ return 'white'; }
-    });
-});
-
-dispatch.on('highlight:type',function(type){
-  intakeSet = new Set();
-  outcomeSet = new Set();
-
-  d3.select('#timeCount')
-    .html(function(d){
-      if(type == 'CAT'){ return 'cats'; }
-      else if(type == 'DOG'){ return 'dogs'; }
-      else if(type == 'OTHER'){ return 'furries'; }
-      else if(type == 'BIRD'){ return 'birds'; }
-      else{ return 'livestock'; }
-    });
-
-  d3.selectAll('.btn-stories').classed('btn-clicked',false);
-
-  d3.selectAll('.animal-btn-group')
-    .transition()
-    .style('opacity',function(d){
-      if(type == d.key){ return 1; }
-      else{ return 0.2; }
-    });
-
-  d3.selectAll('.icon-labels')
-    .transition()
-    .style('fill',function(d){
-      if(type == d.key){ return scaleColor(d.key); }
-      else{ return 'white'; }
-    })
-
-  d3.selectAll('.paths')
-    .transition()
-    .style('opacity',function(d){
-      if(type == d[0].data.type){
-        intakeSet.add(d[0].data.intake_type);
-        outcomeSet.add(d[0].data.outcome_type);
-        if(d3.select('#btn-views-flow').classed('btn-clicked')){
-          return pathOpacity + 0.2;
-        }
-        else if(d3.select('#btn-views-duration').classed('btn-clicked')){
-          return pathOpacityDur;
-        }
-      }
-      else{ return 0.02; }
-    });
-
-  if(d3.select('#btn-views-flow').classed('btn-clicked')){
-    d3.selectAll('.arc')
-      .transition()
-      .style('opacity',function(d){
-        if(intakeSet.has(d.data.key) || outcomeSet.has(d.data.key)){ return 1; }
-        else{ return 0.1; }
-      });
-    d3.selectAll('.label')
-      .transition()
-      .style('opacity',function(d){
-        if(intakeSet.has(d.data.key) || outcomeSet.has(d.data.key)){ return 1; }
-        else{ return 0.1; }
-      });
-  }
-});
-
-dispatch.on('highlight:id',function(id,type,name){
-  intakeSet = new Set();
-  outcomeSet = new Set();
-
-  d3.select('#timeCount')
-    .html(name);
-
-  d3.selectAll('.animal-btn-group')
-    .transition()
-    .style('opacity',function(d){
-      if(type == d.key){ return 1; }
-      else{ return 0.2; }
-    });
-
-  d3.selectAll('.icon-labels')
-    .transition()
-    .style('fill',function(d){
-      if(type == d.key){ return scaleColor(d.key); }
-      else{ return 'white'; }
-    })
-
-  d3.selectAll('.paths')
-    .transition()
-    .style('stroke-width',function(d){
-      if(id == d[0].data.id){
-        return 2;
-      }
-      else{ return 1; }
-    })
-    .style('opacity',function(d){
-      if(id == d[0].data.id){
-        intakeSet.add(d[0].data.intake_type);
-        outcomeSet.add(d[0].data.outcome_type);
-        if(d3.select('#btn-views-flow').classed('btn-clicked')){
-          return pathOpacity + 0.2;
-        }
-        else if(d3.select('#btn-views-duration').classed('btn-clicked')){
-          return pathOpacityDur;
-        }
-      }
-      else{ return 0.02; }
-    });
-
-  if(d3.select('#btn-views-flow').classed('btn-clicked')){
-    d3.selectAll('.arc')
-      .transition()
-      .style('opacity',function(d){
-        if(intakeSet.has(d.data.key) || outcomeSet.has(d.data.key)){ return 1; }
-        else{ return 0.1; }
-      });
-    d3.selectAll('.label')
-      .transition()
-      .style('opacity',function(d){
-        if(intakeSet.has(d.data.key) || outcomeSet.has(d.data.key)){ return 1; }
-        else{ return 0.1; }
-      });
-  }
-});
-
-dispatch.on('highlight:date',function(date){
-  d3.selectAll('.bars-intake')
-    .classed('bars-highlighted',function(d){
-      if(d.key.getTime() == date.getTime()){
-        return true;
-      }else{
-        return false;
-      }
-    });
-  // d3.select('#counts-intake-' + date.getMonth() + '-' + date.getDate())
-  //   .style('opacity',1);
-
-  d3.selectAll('.bars-outcome')
-    .classed('bars-highlighted',function(d){
-      if(d.key.getTime() == date.getTime()){
-        return true;
-      }else{
-        return false;
-      }
-    });
-  // d3.select('#counts-outcome-' + date.getMonth() + '-' + date.getDate())
-  //   .style('opacity',1);
-});
-
-dispatch.on('unhighlight',function(){
-  if(d3.select('#btn-views-flow').classed('btn-clicked')){
-    d3.select('#timeCount').html('flow');
-    generateSummary('flow');
-    svg.selectAll('.arc').transition().style('opacity',1);
-    svg.selectAll('.label').transition().style('opacity',1);
-    svg.selectAll('.paths').transition().style('opacity',pathOpacity).style('stroke-width',1);
-  }
-  if(d3.select('#btn-views-duration').classed('btn-clicked')){
-    d3.select('#timeCount').html('duration');
-    generateSummary('duration');
-    svg.selectAll('.paths').transition().style('opacity',pathOpacityDur).style('stroke-width',1);
-  }
-  d3.selectAll('.animal-btn-group').transition().style('opacity',1);
-  d3.selectAll('.icon-labels').transition().style('fill','white');
-  d3.selectAll('.btn-stories').classed('btn-clicked',false);
-  d3.selectAll('.bars-highlighted').classed('bars-highlighted',false);
-  // d3.selectAll('.counts-intake').style('opacity',0);
-  // d3.selectAll('.counts-outcome').style('opacity',0);
-});
+export default {
+  interactVarObj,
+  summaryVarObj
+}
