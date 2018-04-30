@@ -50,9 +50,8 @@ function drawFlow(data,intake,outcome,obj){
     .endAngle(-20 * (obj.pi / 180));
   const pieO = d3.pie()
     .sort(function(a,b){
-      if(a.key == 'SHELTER' && b.key == 'ADOPTION'){ return a.value-b.value; }
+      if(a.key == 'SHELTER' && b.key == 'ADOPTION' || b.key == 'SHELTER' && a.key == 'ADOPTION'){ return a.value-b.value; }
       else{ return b.value-a.value; }
-      // return b.value-a.value;
     })
     .value(function(d){ return d.value; })
     .startAngle(160 * (obj.pi / 180))
@@ -217,12 +216,12 @@ function drawFlow(data,intake,outcome,obj){
           .style('opacity',1);
         // functionality
         svg.selectAll('.arc')
-          .on('mouseenter', function(d){ interactions.highlightFlow(d.data.key); /*dispatch.call('highlight:flow',null,d.data.key);*/ })
-          .on('mouseleave', function(){ interactions.unhighlight(); /*dispatch.call('unhighlight');*/ });
+          .on('mouseenter', function(d){ interactions.highlightFlow(d.data.key); })
+          .on('mouseleave', function(){ interactions.unhighlight(); });
 
         svg.selectAll('.label')
-          .on('mouseenter', function(d){ interactions.highlightFlow(d.data.key); /*dispatch.call('highlight:flow',null,d.data.key);*/ })
-          .on('mouseleave', function(){ interactions.unhighlight(); /*dispatch.call('unhighlight');*/ });
+          .on('mouseenter', function(d){ interactions.highlightFlow(d.data.key); })
+          .on('mouseleave', function(){ interactions.unhighlight(); });
       }
       i++;
     }, obj.dayDuration);
@@ -250,17 +249,17 @@ function drawFlow(data,intake,outcome,obj){
     svg.append('g')
       .attr('class','axis')
       .attr('id','axis-time')
-      .attr('transform','translate('+ ((-obj.w/2)+100) +',0)')
+      //.attr('transform','translate('+ ((-obj.w/2)+100) +',0)')
+      .attr('transform','translate('+ (-(2*obj.w/5)-20) +',0)')
       .call(d3.axisLeft(obj.scaleTime).tickFormat(d3.timeFormat("%b %d")).ticks(d3.timeDay.every(7)).tickSize(-obj.w))
       .style('opacity',0);
+
     svg.append('rect')
       .attr('id','rect-gradient')
-      .attr('x',(-obj.w/2)+50)
-      .attr('y',-obj.h/2)
-      //.attr('y',(h/2)-200)
+      .attr('x',-2*obj.w/4)
+      .attr('y',-2*obj.h/5 - 10)
       .attr('width',obj.w)
       .attr('height',150)
-      //.attr('height',((h/2) - 20)-((h/2)-200))
       .style('fill','url(#gradient)')
       .style('opacity',0);
 
@@ -272,14 +271,14 @@ function drawFlow(data,intake,outcome,obj){
     svg.select('#axis-duration')
       .append('text')
       .text('longest length of stay')
-      .attr('x',(-obj.w/2)+110)
-      .attr('y',(-obj.h/2)+100)
+      .attr('x',-(2*obj.w/5))
+      .attr('y',-(2*obj.h/5)+80)
       .style('text-anchor','start');
     svg.select('#axis-duration')
       .append('text')
       .text('shortest length of stay')
-      .attr('x',(obj.w/2)+15)
-      .attr('y',(-obj.h/2)+100)
+      .attr('x',(2*obj.w/5))
+      .attr('y',-(2*obj.h/5)+80)
       .style('text-anchor','end');
 
 };
@@ -356,8 +355,8 @@ function redrawFlow(scales,views,barH){
     .style('opacity',1);
 
   d3.selectAll('.label')
-    .on('mouseenter', function(d){ interactions.highlightFlow(d.data.key); /*dispatch.call('highlight:flow',null,d.data.key);*/ })
-    .on('mouseleave', function(){ interactions.unhighlight(); /*dispatch.call('unhighlight');*/ })
+    .on('mouseenter', function(d){ interactions.highlightFlow(d.data.key); })
+    .on('mouseleave', function(){ interactions.unhighlight(); })
     .transition()
     .delay(4000)
     .duration(2000)
@@ -367,29 +366,34 @@ function redrawFlow(scales,views,barH){
   d3.selectAll('.bars-duration')
     .transition()
     .duration(1000)
-    .attr('y',barH*2)
+    .attr('y',barH*1.5)
     .attr('height',0);
+
+  d3.select('#bar-context-duration')
+    .transition()
+    .duration(1000)
+    .style('opacity',0);
 
   // transition in sidebar bars for intake and outcome
   d3.selectAll('.bars-intake')
     .transition()
     .delay(4000)
     .duration(2000)
-    .attr('y',function(d){ return barH-scales.scaleCount(d.value); })
-    .attr('height',function(d){ return scales.scaleCount(d.value); });
+    .attr('y',function(d){ return barH-scales.scaleCount(d.values.length); })
+    .attr('height',function(d){ return scales.scaleCount(d.values.length); });
 
   d3.selectAll('.bars-outcome')
     .transition()
     .delay(4000)
     .duration(2000)
-    .attr('height',function(d){ return scales.scaleCount(d.value); });
+    .attr('height',function(d){ return scales.scaleCount(d.values.length); });
 
   d3.select('#title-bars')
     .transition()
     .delay(5000)
     .text('daily counts');
 
-  d3.select('#bar-context')
+  d3.select('#bar-context-flow')
     .transition()
     .delay(5000)
     .style('opacity',1);
@@ -397,7 +401,6 @@ function redrawFlow(scales,views,barH){
 }
 
 function animateFlow(obj, barH, barW, colW){
-  console.log(obj)
 
   const svg = d3.select('#viz-svg-g');
 
@@ -412,10 +415,10 @@ function animateFlow(obj, barH, barW, colW){
 
   //bring in flow elements
   d3.selectAll('.bars-intake')
-    .attr('y',function(d){ return barH-obj.scaleCount(d.value); })
-    .attr('height',function(d){ return obj.scaleCount(d.value); });
+    .attr('y',function(d){ return barH-obj.scaleCount(d.values.length); })
+    .attr('height',function(d){ return obj.scaleCount(d.values.length); });
   d3.selectAll('.bars-outcome')
-    .attr('height',function(d){ return barH-obj.scaleCount(d.value); });
+    .attr('height',function(d){ return barH-obj.scaleCount(d.values.length); });
 
   d3.select('#title-bars')
     .text('daily counts');
@@ -429,16 +432,16 @@ function animateFlow(obj, barH, barW, colW){
 
   d3.selectAll('.arc')
     .style('opacity',0)
-    // .on('mouseenter', function(d){ interactions.highlightFlow(d.data.key); /*dispatch.call('highlight:flow',null,d.data.key);*/ })
-    // .on('mouseleave', function(){ interactions.unhighlight(); /*dispatch.call('unhighlight');*/ })
+    .on('mouseenter', null)
+    .on('mouseleave', null)
     .transition()
     .delay(obj.dayDuration*1.5)
     .style('opacity',1);
 
   d3.selectAll('.label')
     .style('opacity',0)
-    // .on('mouseenter', function(d){ interactions.highlightFlow(d.data.key); /*dispatch.call('highlight:flow',null,d.data.key);*/ })
-    // .on('mouseleave', function(){ interactions.unhighlight(); /*dispatch.call('unhighlight');*/ })
+    .on('mouseenter', null)
+    .on('mouseleave', null)
     .transition()
     .delay(obj.dayDuration*1.5)
     .style('opacity',1);
@@ -498,12 +501,12 @@ function animateFlow(obj, barH, barW, colW){
           .style('opacity',1);
         // functionality
         svg.selectAll('.arc')
-        .on('mouseenter', function(d){ interactions.highlightFlow(d.data.key); /*dispatch.call('highlight:flow',null,d.data.key);*/ })
-        .on('mouseleave', function(){ interactions.unhighlight(); /*dispatch.call('unhighlight');*/ })
+        .on('mouseenter', function(d){ interactions.highlightFlow(d.data.key); })
+        .on('mouseleave', function(){ interactions.unhighlight(); })
 
         svg.selectAll('.label')
-        .on('mouseenter', function(d){ interactions.highlightFlow(d.data.key); /*dispatch.call('highlight:flow',null,d.data.key);*/ })
-        .on('mouseleave', function(){ interactions.unhighlight(); /*dispatch.call('unhighlight');*/ })
+        .on('mouseenter', function(d){ interactions.highlightFlow(d.data.key); })
+        .on('mouseleave', function(){ interactions.unhighlight(); })
       }
       i++;
     }, obj.dayDuration);

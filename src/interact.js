@@ -2,16 +2,20 @@ import * as d3 from 'd3';
 import sideFunctions from './sidebar';
 import objects from './index';
 
-let intakeSet, outcomeSet;
+let intakeSet, outcomeSet, intakeDateSet, outcomeDateSet, losSet;
 let svg;
 
 function highlightFlow(type){
+
   svg = d3.select('#viz-svg-g');
   const animalSet = new Set();
   intakeSet = new Set();
   outcomeSet = new Set();
 
-  sideFunctions.generateSummary('flow',objects.summaryVarObj);
+  d3.select('#timeCount')
+    .html(objects.summaryVarObj.labelMap.get(type));
+
+  sideFunctions.highlightFlow(type,objects.flowSummaryObj);
 
   // highlight paths
   svg.selectAll('.paths')
@@ -28,7 +32,7 @@ function highlightFlow(type){
           return objects.interactVarObj.pathOpacityDur;
         }
       }
-      else{ return 0.02; }
+      else{ return /*0.02*/ 0.05; }
     });
 
   // highlight arc and label
@@ -65,9 +69,12 @@ function highlightFlow(type){
     });
 };
 
-function highlightType(type){
+function highlightType(type, aggIntake, aggOutcome, bins){
   intakeSet = new Set();
   outcomeSet = new Set();
+  intakeDateSet = new Set();
+  outcomeDateSet = new Set();
+  losSet = new Set();
 
   d3.select('#timeCount')
     .html(function(d){
@@ -100,6 +107,11 @@ function highlightType(type){
       if(type == d[0].data.type){
         intakeSet.add(d[0].data.intake_type);
         outcomeSet.add(d[0].data.outcome_type);
+        intakeDateSet.add(d[0].data.intake_date.getTime());
+        if(d[0].outcome_type != 'SHELTER'){
+          outcomeDateSet.add(d[0].data.outcome_date.getTime());
+        }
+        losSet.add(d[0].data.los_new);
         if(d3.select('#btn-views-flow').classed('btn-clicked')){
           return objects.interactVarObj.pathOpacity + 0.2;
         }
@@ -107,7 +119,7 @@ function highlightType(type){
           return objects.interactVarObj.pathOpacityDur;
         }
       }
-      else{ return 0.02; }
+      else{ return 0.05; }
     });
 
   if(d3.select('#btn-views-flow').classed('btn-clicked')){
@@ -123,6 +135,62 @@ function highlightType(type){
         if(intakeSet.has(d.data.key) || outcomeSet.has(d.data.key)){ return 1; }
         else{ return 0.1; }
       });
+
+    // bar chart
+    const typeMax = Math.max(d3.max(aggIntake.map(function(d){return d.values[type]})), d3.max(aggOutcome.map(function(d){return d.values[type]})));
+    objects.interactVarObj.scaleCount.domain([0,typeMax]);
+
+    d3.selectAll('.bars-intake')
+      .transition()
+      .attr('height',function(d){
+        if(intakeDateSet.has(d.key.getTime())){
+          return objects.interactVarObj.scaleCount(d.values[type]);
+        }else{
+          return objects.interactVarObj.scaleCount(0);
+        }
+      })
+      .attr('y',function(d){
+        if(intakeDateSet.has(d.key.getTime())){
+          return sideFunctions.barH-objects.interactVarObj.scaleCount(d.values[type]);
+        }else{
+          return sideFunctions.barH-objects.interactVarObj.scaleCount(0);
+        }
+      })
+      .style('fill', objects.interactVarObj.scaleColor(type));
+
+    d3.selectAll('.bars-outcome')
+    .transition()
+    .attr('height',function(d){
+      if(outcomeDateSet.has(d.key.getTime())){
+        return objects.interactVarObj.scaleCount(d.values[type]);
+      }else{
+        return objects.interactVarObj.scaleCount(0);
+      }
+    })
+    .style('fill', objects.interactVarObj.scaleColor(type));
+  }
+
+  if(d3.select('#btn-views-duration').classed('btn-clicked')){
+    const typeMaxDur = (d3.max(bins, function(d) { return d[type] }));
+    objects.interactVarObj.scaleHistCount.domain([0,typeMaxDur]);
+
+    d3.selectAll('.bars-duration')
+      .transition()
+      .attr('y',function(d){
+        if(typeof d[type] === 'undefined'){
+          return (sideFunctions.barH*1.5)-objects.interactVarObj.scaleHistCount(0);
+        }else {
+          return (sideFunctions.barH*1.5)-objects.interactVarObj.scaleHistCount(d[type]);
+        }
+      })
+      .attr('height',function(d){
+        if(typeof d[type] === 'undefined'){
+          return objects.interactVarObj.scaleHistCount(0);
+        }else {
+          return objects.interactVarObj.scaleHistCount(d[type]);
+        }
+      })
+      .style('fill', objects.interactVarObj.scaleColor(type));
   }
 };
 
@@ -166,7 +234,7 @@ function highlightId(id,type,name){
           return objects.interactVarObj.pathOpacityDur;
         }
       }
-      else{ return 0.02; }
+      else{ return 0.05; }
     });
 
   if(d3.select('#btn-views-flow').classed('btn-clicked')){
@@ -194,8 +262,8 @@ function highlightDate(date){
         return false;
       }
     });
-  // d3.select('#counts-intake-' + date.getMonth() + '-' + date.getDate())
-  //   .style('opacity',1);
+  d3.select('#counts-intake-' + date.getMonth() + '-' + date.getDate())
+    .style('opacity',1);
 
   d3.selectAll('.bars-outcome')
     .classed('bars-highlighted',function(d){
@@ -205,9 +273,22 @@ function highlightDate(date){
         return false;
       }
     });
-  // d3.select('#counts-outcome-' + date.getMonth() + '-' + date.getDate())
-  //   .style('opacity',1);
+  d3.select('#counts-outcome-' + date.getMonth() + '-' + date.getDate())
+    .style('opacity',1);
 };
+
+function highlightBin(x1){
+  d3.selectAll('.bars-duration')
+    .classed('bars-highlighted',function(d){
+      if(d.x1 == x1){
+        return true;
+      }else{
+        return false;
+      }
+    });
+  d3.select('#counts-duration-' + x1)
+    .style('opacity',1);
+}
 
 function unhighlight(){
   svg = d3.select('#viz-svg-g');
@@ -217,18 +298,37 @@ function unhighlight(){
     svg.selectAll('.arc').transition().style('opacity',1);
     svg.selectAll('.label').transition().style('opacity',1);
     svg.selectAll('.paths').transition().style('opacity',objects.interactVarObj.pathOpacity).style('stroke-width',1);
+
+    objects.interactVarObj.scaleCount.domain([0,objects.interactVarObj.maxCount]);
+    d3.selectAll('.bars-intake')
+      .transition()
+      .attr('height',function(d){ return objects.interactVarObj.scaleCount(d.values.length); })
+      .attr('y',function(d){ return sideFunctions.barH-objects.interactVarObj.scaleCount(d.values.length); })
+      .style('fill','#A9A9A9');
+    d3.selectAll('.bars-outcome')
+      .transition()
+      .attr('height',function(d){ return objects.interactVarObj.scaleCount(d.values.length); })
+      .style('fill','#A9A9A9');
   }
   if(d3.select('#btn-views-duration').classed('btn-clicked')){
     d3.select('#timeCount').html('duration');
     sideFunctions.generateSummary('duration',objects.summaryVarObj);
     svg.selectAll('.paths').transition().style('opacity',objects.interactVarObj.pathOpacityDur).style('stroke-width',1);
+
+    objects.interactVarObj.scaleHistCount.domain([0,objects.interactVarObj.maxBin]);
+    d3.selectAll('.bars-duration')
+      .transition()
+      .attr('y',function(d){ return (sideFunctions.barH*1.5)-objects.interactVarObj.scaleHistCount(d.length); })
+      .attr('height',function(d){ return objects.interactVarObj.scaleHistCount(d.length); })
+      .style('fill','#A9A9A9');
   }
   d3.selectAll('.animal-btn-group').transition().style('opacity',1);
   d3.selectAll('.icon-labels').transition().style('fill','white');
   d3.selectAll('.btn-stories').classed('btn-clicked',false);
   d3.selectAll('.bars-highlighted').classed('bars-highlighted',false);
-  // d3.selectAll('.counts-intake').style('opacity',0);
-  // d3.selectAll('.counts-outcome').style('opacity',0);
+  d3.selectAll('.counts-intake').style('opacity',0);
+  d3.selectAll('.counts-outcome').style('opacity',0);
+  d3.selectAll('.counts-duration').style('opacity',0);
 };
 
 export default{
@@ -236,5 +336,6 @@ export default{
   highlightType,
   highlightId,
   highlightDate,
+  highlightBin,
   unhighlight
 }

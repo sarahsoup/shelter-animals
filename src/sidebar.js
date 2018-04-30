@@ -4,10 +4,12 @@ import './style.css';
 import flowFunctions from './flow';
 import durFunctions from './duration';
 import interactions from './interact';
+import objects from './index';
 
 const barH = 30;
 const barW = 4;
 let colW;
+let view = 'flow';
 
 d3.select('#visualization')
   .append('g')
@@ -26,9 +28,10 @@ function createViewBtns(sumObj,scalesObj,viewsObj){
     .on('click',function(d){
       d3.selectAll('.btn-views').classed('btn-clicked',false);
       d3.select(this).classed('btn-clicked',true);
-      // dispatch.call('unhighlight'); //causes arcs and labels to immediately reappear
+      interactions.unhighlight();
       flowFunctions.redrawFlow(scalesObj,viewsObj,barH);
       generateSummary('flow',sumObj);
+      view = 'flow';
     });
 
   d3.select('#btn-group-views')
@@ -39,10 +42,10 @@ function createViewBtns(sumObj,scalesObj,viewsObj){
     .on('click',function(d){
       d3.selectAll('.btn-views').classed('btn-clicked',false);
       d3.select(this).classed('btn-clicked',true);
-      //dispatch.call('unhighlight');
       interactions.unhighlight();
       durFunctions.drawDuration(scalesObj,barH,viewsObj.pathOpacityDur);
       generateSummary('duration',sumObj);
+      view = 'duration';
     });
 }
 
@@ -53,7 +56,7 @@ function addDataInfo(sideW){
     .html('data graciously provided by Animal Rescue League, representing the animal population at their three shelters collectively for January 2018');
 }
 
-function makeBarChart(aggIntake,aggOutcome,bins,obj,months,timeCount,maxDate){
+function makeBarChart(aggIntake,aggOutcome,bins,obj,months,timeCount,maxDate,oneDay){
 
   d3.select('#bar-div')
     .style('margin','20px 0px 20px 0px')
@@ -89,27 +92,27 @@ function makeBarChart(aggIntake,aggOutcome,bins,obj,months,timeCount,maxDate){
   obj.scaleCount
     .range([0,barH]);
   obj.scaleHistCount
-    .range([0,barH*2]);
+    .range([0,barH*1.5]);
 
-  const context = barSvg.append('g')
-    .attr('id','bar-context');
+  const contextFlow = barSvg.append('g')
+    .attr('id','bar-context-flow');
 
-  context.append('text')
+  contextFlow.append('text')
     .attr('class','context-text')
     .attr('id','context-minX')
-    .text(months[timeCount.getMonth()]/*+timeCount.getDate()*/)
+    .text(months[timeCount.getMonth()])
     .attr('x',colW*.1)
     .attr('y',barH+4)
     .style('text-anchor','end');
 
-  context.append('text')
+  contextFlow.append('text')
     .attr('class','context-text')
     .attr('id','context-maxX')
-    .text(months[maxDate.getMonth()]/*+maxDate.getDate()*/)
+    .text(months[maxDate.getMonth()])
     .attr('x',colW*.9)
     .attr('y',barH+4);
 
-  context.append('text')
+  contextFlow.append('text')
     .attr('class','context-text')
     .attr('id','context-intake')
     .text('intake')
@@ -119,7 +122,7 @@ function makeBarChart(aggIntake,aggOutcome,bins,obj,months,timeCount,maxDate){
     .style('text-anchor','middle')
     .style('opacity',0.2);
 
-  context.append('text')
+  contextFlow.append('text')
     .attr('class','context-text')
     .attr('id','context-outcome')
     .text('outcomes')
@@ -129,23 +132,30 @@ function makeBarChart(aggIntake,aggOutcome,bins,obj,months,timeCount,maxDate){
     .style('text-anchor','middle')
     .style('opacity',0.2);
 
+  barSvg.append('g')
+    .attr('id','bar-context-duration')
+    .attr('class', 'axis')
+    .attr('transform', 'translate(0,' + (barH*1.5) + ')')
+    .call(d3.axisBottom(obj.scaleLosHist).ticks(6))
+    .style('opacity',0);
+
+  const datePlusOne = new Date(timeCount.getTime()+oneDay);
+  const flowBarsW = obj.scaleTimeBar(datePlusOne) - obj.scaleTimeBar(timeCount) - 1;
   barSvg.selectAll('.bars-intake')
     .data(aggIntake.filter(function(d){ return d.key.getTime() >= timeCount.getTime(); }))
     .enter()
     .append('rect')
     .attr('class','bars-intake')
     .attr('id',function(d){ return 'bar-intake-'+d.key; })
-    .attr('x',function(d){ return obj.scaleTimeBar(d.key)-(barW/2); })
-    .attr('y',function(d){ return barH-obj.scaleCount(d.value); })
-    .attr('width',(colW*.8)/32)
-    .attr('height',function(d){ return obj.scaleCount(d.value); })
+    .attr('x',function(d){ return obj.scaleTimeBar(d.key)-flowBarsW/2; })
+    .attr('y',function(d){ return barH-obj.scaleCount(d.values.length); })
+    .attr('width',flowBarsW)
+    .attr('height',function(d){ return obj.scaleCount(d.values.length); })
     .style('cursor','pointer')
     .on('mouseenter',function(d){
-      // dispatch.call('highlight:date', null, d.key);
       interactions.highlightDate(d.key);
     })
     .on('mouseleave',function(d){
-      // dispatch.call('unhighlight');
       interactions.unhighlight();
     });
 
@@ -155,69 +165,81 @@ function makeBarChart(aggIntake,aggOutcome,bins,obj,months,timeCount,maxDate){
     .append('rect')
     .attr('class','bars-outcome')
     .attr('id',function(d){ return 'bar-outcome-'+d.key; })
-    .attr('x',function(d){ return obj.scaleTimeBar(d.key)-(barW/2); })
+    .attr('x',function(d){ return obj.scaleTimeBar(d.key)-flowBarsW/2; })
     .attr('y',barH+1)
-    .attr('width',(colW*.8)/32)
-    .attr('height',function(d){ return barH-obj.scaleCount(d.value); })
+    .attr('width',flowBarsW)
+    .attr('height',function(d){ return obj.scaleCount(d.values.length); })
     .style('cursor','pointer')
     .on('mouseenter',function(d){
-      // dispatch.call('highlight:date', null, d.key);
       interactions.highlightDate(d.key);
     })
     .on('mouseleave',function(d){
-      // dispatch.call('unhighlight');
       interactions.unhighlight();
     });
 
+  const durBarsW = obj.scaleLosHist(bins[0].x1) - obj.scaleLosHist(bins[0].x0) - 1;
   barSvg.selectAll('.bars-duration')
     .data(bins)
     .enter()
     .append('rect')
     .attr('class','bars-duration')
-    .attr('x',function(d){ return obj.scaleLosHist(d.x0)/*-(barW/2)*/; })
-    .attr('y',barH*2)
-    .attr('width',(colW*.6)/bins.length)
-    .attr('height',0);
+    .attr('x',function(d){ return obj.scaleLosHist(d.x0)-durBarsW/2; })
+    .attr('y',barH*1.5)
+    .attr('width',durBarsW)
+    .attr('height',0)
+    .style('cursor','pointer')
+    .on('mouseenter',function(d){
+      interactions.highlightBin(d.x1);
+    })
+    .on('mouseleave',function(d){
+      interactions.unhighlight();
+    });
 
-  // tooltip = barSvg.append('g')
-  //   .attr('id','bar-counts');
+  const tooltip = barSvg.append('g')
+    .attr('id','bar-counts');
 
-  // barSvg.append('g')
-  //   .attr('class','axis-bars')
-  //   .attr('id','axis-count')
-  //   .attr('transform','translate('+ (colW*.1) +',0)')
-  //   .call(d3.axisLeft(scaleHistCount)/*.tickFormat(d3.timeFormat("%b %d")).ticks(d3.timeDay.every(7)).tickSize(-w)*/)
-  //   .style('opacity',0);
+  tooltip.selectAll('.counts-intake')
+    .data(aggIntake.filter(function(d){ return d.key.getTime() >= timeCount.getTime(); }))
+    .enter()
+    .append('text')
+    .attr('class','counts-intake')
+    .attr('id',function(d){ return 'counts-intake-' + d.key.getMonth() + '-' + d.key.getDate(); })
+    .text(function(d){ return d.values.length; })
+    .attr('x',function(d){ return obj.scaleTimeBar(d.key); })
+    .attr('y',function(d){ return barH-obj.scaleCount(d.values.length)-3; })
+    .style('font-size','8px')
+    .style('text-anchor','middle')
+    .style('opacity',0);
 
-  // tooltip.selectAll('.counts-intake')
-  //   .data(aggIntake.filter(function(d){ return d.key.getTime() >= timeCount.getTime(); }))
-  //   .enter()
-  //   .append('text')
-  //   .attr('class','counts-intake')
-  //   .attr('id',function(d){ return 'counts-intake-' + d.key.getMonth() + '-' + d.key.getDate(); })
-  //   .text(function(d){ return d.value; })
-  //   .attr('x',function(d){ return scaleTimeBar(d.key); })
-  //   .attr('y',function(d){ return barH-scaleCount(d.value)-3; })
-  //   .style('font-size','8px')
-  //   .style('text-anchor','middle')
-  //   .style('opacity',0);
-  //
-  // tooltip.selectAll('.counts-outcome')
-  //   .data(aggOutcome)
-  //   .enter()
-  //   .append('text')
-  //   .attr('class','counts-outcome')
-  //   .attr('id',function(d){ return 'counts-outcome-' + d.key.getMonth() + '-' + d.key.getDate(); })
-  //   .text(function(d){ return d.value; })
-  //   .attr('x',function(d){ return scaleTimeBar(d.key); })
-  //   .attr('y',function(d){ return barH+1+scaleCount(d.value)+8; })
-  //   .style('font-size','8px')
-  //   .style('text-anchor','middle')
-  //   .style('opacity',0);
+  tooltip.selectAll('.counts-outcome')
+    .data(aggOutcome)
+    .enter()
+    .append('text')
+    .attr('class','counts-outcome')
+    .attr('id',function(d){ return 'counts-outcome-' + d.key.getMonth() + '-' + d.key.getDate(); })
+    .text(function(d){ return d.values.length; })
+    .attr('x',function(d){ return obj.scaleTimeBar(d.key); })
+    .attr('y',function(d){ return barH+9+obj.scaleCount(d.values.length); })
+    .style('font-size','8px')
+    .style('text-anchor','middle')
+    .style('opacity',0);
+
+  tooltip.selectAll('.counts-duration')
+    .data(bins)
+    .enter()
+    .append('text')
+    .attr('class','counts-duration')
+    .attr('id',function(d){ return 'counts-duration-' + d.x1; })
+    .text(function(d){ return d.length; })
+    .attr('x',function(d){ return obj.scaleLosHist(d.x0); })
+    .attr('y',function(d){ return (barH*1.5)-obj.scaleHistCount(d.length)-3; })
+    .style('font-size','8px')
+    .style('text-anchor','middle')
+    .style('opacity',0);
 
 };
 
-function createAnimalBtns(type,sideW,scaleColor){
+function createAnimalBtns(type,sideW,scaleColor,obj,labelMap,aggIntake,aggOutcome,bins){
   let intakeSet = new Set();
   let outcomeSet = new Set();
 
@@ -286,13 +308,11 @@ function createAnimalBtns(type,sideW,scaleColor){
     .on('click',function(d){
       if(d3.select(this).classed('btn-animal-clicked')){
         d3.select(this).classed('btn-animal-clicked',false);
-        // dispatch.call('unhighlight');
         interactions.unhighlight();
       }else{
         d3.select(this).classed('btn-animal-clicked',true);
-        // dispatch.call('highlight:type', null, d.key);
-        interactions.highlightType(d.key);
-        highlightType(d.key);
+        interactions.highlightType(d.key, aggIntake, aggOutcome, bins);
+        highlightType(d.key, obj, labelMap);
       }
     });
 
@@ -358,10 +378,9 @@ function createStories(){
 
 function summaryInformation(sideW,obj){
 
-  summary = d3.select('#summary')
+  const summary = d3.select('#summary')
     .attr('width',sideW)
     .style('padding','10px 10px')
-    // .style('margin','20px 0px')
     .style('font-size','10px');
 
   summary.append('g')
@@ -370,12 +389,6 @@ function summaryInformation(sideW,obj){
     .attr('class','centered')
     .attr('id','animal-img')
     .attr('height',100);
-
-  // summary.append('p')
-  //   .attr('id','summary-title')
-  //   // .style('margin-top','10px')
-  //   .style('font-size','12px')
-  //   .style('font-weight','bolder');
 
   summary.append('p')
     .attr('id','summary-text')
@@ -389,13 +402,9 @@ function summaryInformation(sideW,obj){
 
 function generateSummary(view,obj){
   d3.select('#animal-img')
-    // .attr('height',0)
     .attr('src',null);
 
   if(view == 'flow'){
-    // d3.select('#summary-title')
-    //   .style('text-align','left')
-    //   .html('summary of flow');
     d3.select('#summary-text')
       .style('margin-left','0%')
       .style('margin-right','5%')
@@ -407,9 +416,6 @@ function generateSummary(view,obj){
         'most animals were ' + obj.labelMap.get(obj.intakeMost) + '<br/>'+
         'and most were ' + obj.labelMap.get(obj.outcomeMost));
   }else if(view == 'duration'){
-    // d3.select('#summary-title')
-    //   .style('text-align','left')
-    //   .html('summary of duration');
     d3.select('#summary-text')
       .style('margin-left','0%')
       .style('margin-right','5%')
@@ -425,7 +431,7 @@ function generateSummary(view,obj){
   }
 }
 
-function highlightType(type){
+function highlightType(type,obj,labelMap){
   let typeName;
   if(type == 'CAT'){ typeName = 'cats'; }
   else if(type == 'DOG'){ typeName = 'dogs'; }
@@ -434,16 +440,83 @@ function highlightType(type){
   else{ typeName = 'livestock'; }
 
   d3.select('#animal-img')
-    // .attr('height',0)
     .attr('src',null);
-  // d3.select('#summary-title')
-  //   .style('text-align','left')
-  //   .html(typeName);
   d3.select('#summary-text')
     .style('margin-left','0%')
     .style('margin-right','5%')
     .html('this will have information for ' + typeName);
 
+  obj.forEach(function(d){
+    if(d.key == type){
+      if(view == 'flow'){
+        d3.select('#summary-text')
+          .style('margin-left','0%')
+          .style('margin-right','5%')
+          .html(d.value + ' total ' + typeName + '<br/>'+
+            d.intakePrior + ' in shelter at beginning of month<br/>'+
+            d.intakeDuring + ' entered shelter during month<br/>'+
+            d.outcomeDuring + ' left shelter during month<br/>'+
+            'most animals were ' + labelMap.get(d.intakeMost) + '<br/>'+
+            'and most were ' + labelMap.get(d.outcomeMost));
+      }else if(view == 'duration'){
+        d3.select('#summary-text')
+          .style('margin-left','0%')
+          .style('margin-right','5%')
+          .html(d.value + ' total ' + typeName + '<br/>'+
+            d.intakePrior + ' in shelter at beginning of month<br/>'+
+            d.intakeDuring + ' entered shelter during month<br/>'+
+            d.outcomeDuring + ' left shelter during month<br/>'+
+            'the shortest length of stay was ' + d.losMin + ' days<br/>'+
+            'the longest length of stay was ' + d.losMax + ' days');
+      }
+    }
+  })
+
+}
+
+function highlightFlow(type,obj){
+
+  console.log(obj);
+
+  obj.intake.forEach(function(d){
+    if(type == d.key){
+      let typeMostName;
+      if(d.typeMost == 'CAT'){ typeMostName = 'cats'; }
+      else if(d.typeMost == 'DOG'){ typeMostName = 'dogs'; }
+      else if(d.typeMost == 'OTHER'){ typeMostName = 'furries'; }
+      else if(d.typeMost == 'BIRD'){ typeMostName = 'birds'; }
+      else{ typeMostName = 'livestock'; }
+      d3.select('#summary-text')
+        .style('margin-left','0%')
+        .style('margin-right','5%')
+        .html(d.value + ' total animals<br/>'+
+          d.intakePrior + ' in shelter at beginning of month<br/>'+
+          d.intakeDuring + ' entered shelter during month<br/>'+
+          d.outcomeDuring + ' left shelter during month<br/>'+
+          typeMostName + ' were the most common animal<br/>'+
+          'most animals that were ' + objects.summaryVarObj.labelMap.get(d.key) + '<br/>'+
+          'were ' + objects.summaryVarObj.labelMap.get(d.outcomeMost) + ' at the end of the month');
+    }
+  })
+  obj.outcome.forEach(function(d){
+    if(type == d.key){
+      let typeMostName;
+      if(d.typeMost == 'CAT'){ typeMostName = 'cats'; }
+      else if(d.typeMost == 'DOG'){ typeMostName = 'dogs'; }
+      else if(d.typeMost == 'OTHER'){ typeMostName = 'furries'; }
+      else if(d.typeMost == 'BIRD'){ typeMostName = 'birds'; }
+      else{ typeMostName = 'livestock'; }
+      d3.select('#summary-text')
+        .style('margin-left','0%')
+        .style('margin-right','5%')
+        .html(d.value + ' total animals<br/>'+
+          d.intakePrior + ' in shelter at beginning of month<br/>'+
+          d.intakeDuring + ' entered shelter during month<br/>'+
+          typeMostName + ' were the most common animal<br/>'+
+          'most animals that were ' + objects.summaryVarObj.labelMap.get(d.key) + '<br/>'+
+          'were ' + objects.summaryVarObj.labelMap.get(d.intakeMost) + ' at the end of the month');
+    }
+  })
 }
 
 function highlightStory(name){
@@ -471,7 +544,6 @@ function highlightStory(name){
     type = 'CAT';
   }
 
-  // dispatch.call('highlight:id', null, id, type, name);
   interactions.highlightId(id,type,name);
 
   d3.select('#animal-img')
@@ -541,6 +613,7 @@ export default{
   summaryInformation,
   generateSummary,
   highlightType,
+  highlightFlow,
   barH,
   barW,
   colW

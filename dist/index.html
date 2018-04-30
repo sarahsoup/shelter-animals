@@ -7,15 +7,20 @@
 <body>
 <div class="container">
   <div class="row" id="idle">
-    <div class="col-lg-12 idle-container">
-      <h1>a month at an animal shelter</h1>
-      <a id="btn-idle">explore</a>
+    <div class="col-sm-12" id="idle-container">
+      <svg id="idle-svg"></svg>
+      <g id="idle-text-g">
+        <h1 id="title-idle">a month at an animal shelter</h1>
+        <a id="btn-idle">explore</a>
+      </g>
     </div>
   </div>
   <div class="row hidden" id="content">
-    <div class="col-sm-9" id="visualization">
+    <div class="col-sm-9" id="visualization-container">
       <h1 id="title">a month in an animal shelter</h1>
       <h1 id="timeCount"></h1>
+      <div id="visualization">
+      </div>
     </div>
     <div class="col-sm-3" id="supplemental">
       <div id="summary"></div>

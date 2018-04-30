@@ -1,3 +1,49 @@
+
+/* SPECIFIC TO DISPLAY SIZE */
+.btn-views{
+  height: 32px;
+  width: 70px;
+  font-size: 10px;
+  background-color: white;
+  border: 1px solid black;
+  cursor: pointer;
+}
+
+#label-group{
+  cursor: pointer;
+  fill: #A9A9A9;
+  font-size: 10px;
+}
+
+@media only screen and (min-width: 1300px){
+  .btn-views{
+    height: 40px;
+    width: 84px;
+    font-size: 12px;
+    background-color: white;
+    border: 1px solid black;
+    cursor: pointer;
+  }
+
+  #label-group{
+    cursor: pointer;
+    fill: #A9A9A9;
+    font-size: 12px;
+  }
+}
+
+.btn-stories{
+  cursor: pointer;
+  background-color: white;
+  border: 1px solid black;
+  border-radius: 20px;
+  padding: 8px 16px;
+  margin: 5px;
+  font-size: 10px;
+}
+
+/* GENERAL STYLE */
+
 .hidden{
   display: none;
 }
@@ -5,15 +51,6 @@
 body{
   font-weight: lighter;
 }
-
-/* #header{
-  margin-top: 20px;
-} */
-
-/* #summary-container{
-  display: flex;
-  height: 75px;
-} */
 
 .container{
   max-width: 94%;
@@ -23,11 +60,16 @@ body{
   text-align: center;
 }
 
-#idle h1{
+#idle-text-g{
+  position: fixed;
+}
+
+#title-idle{
   display: block;
   margin: 80px 0px 80px 0px;
   font-size: 40px;
   font-weight: bolder;
+  text-anchor: middle;
 }
 
 #btn-idle{
@@ -46,11 +88,10 @@ body{
 }
 
 #visualization{
-  /* width: 70%; */
 }
 
 #supplemental{
-  /* width: 30%; */
+  max-width: 300px;
   opacity: 0;
 }
 
@@ -77,13 +118,6 @@ h1{
   cursor: pointer;
 }
 
-#label-group{
-  cursor: pointer;
-  fill: #A9A9A9;
-  font-size: 8pt;
-  /* font-weight: bolder; */
-}
-
 .label-intake{
   /* text-anchor: end; */
 }
@@ -93,9 +127,12 @@ h1{
   /* fill: #DCDCDC; */
 }
 
-
 .axis path, .axis .tick line, #axis-count path, #axis-count .tick line{
   stroke: white;
+}
+
+#bar-context-duration text{
+  font-size: 8px;
 }
 
 #summary{
@@ -117,13 +154,12 @@ h1{
   left: 15px;
 }
 
-.btn-views{
-  height: 28px;
-  width: 60px;
-  font-size: 8px;
-  background-color: white;
-  border: 1px solid black;
-  cursor: pointer;
+#btn-views-flow{
+  border-radius: 20px 0px 0px 20px;
+}
+
+#btn-views-duration{
+  border-radius: 0px 20px 20px 0px;
 }
 
 .btn-stories{
@@ -134,14 +170,6 @@ h1{
   padding: 8px 16px;
   margin: 5px;
   font-size: 10px;
-}
-
-#btn-views-flow{
-  border-radius: 20px 0px 0px 20px;
-}
-
-#btn-views-duration{
-  border-radius: 0px 20px 20px 0px;
 }
 
 .btn-clicked{
