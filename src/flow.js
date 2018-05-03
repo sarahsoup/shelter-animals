@@ -324,6 +324,9 @@ function makePath(data, obj){
 
 function redrawFlow(scales,views,barH){
 
+  d3.select('#timeCount')
+    .html('flow');
+
   const svg = d3.select('#viz-svg-g');
 
   svg.selectAll('.axis')
@@ -410,20 +413,30 @@ function animateFlow(obj, barH, barW, colW){
   svg.select('#rect-gradient')
     .style('opacity',0);
   d3.selectAll('.bars-duration')
+    .style('fill','#A9A9A9')
+    .style('opacity',1)
     .attr('y',barH*2)
     .attr('height',0);
+  d3.select('#bar-context-duration')
+    .style('opacity',0);
 
   //bring in flow elements
+  obj.scaleCount.domain([0,obj.maxCount]);
+
   d3.selectAll('.bars-intake')
+    .style('fill','#A9A9A9')
+    .style('opacity',1)
     .attr('y',function(d){ return barH-obj.scaleCount(d.values.length); })
     .attr('height',function(d){ return obj.scaleCount(d.values.length); });
   d3.selectAll('.bars-outcome')
-    .attr('height',function(d){ return barH-obj.scaleCount(d.values.length); });
+    .style('fill','#A9A9A9')
+    .style('opacity',1)
+    .attr('height',function(d){ return obj.scaleCount(d.values.length); });
 
   d3.select('#title-bars')
     .text('daily counts');
 
-  d3.select('#bar-context')
+  d3.select('#bar-context-flow')
     .style('opacity',1);
 
   d3.selectAll('.paths')

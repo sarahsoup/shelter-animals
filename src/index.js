@@ -8,15 +8,15 @@ import sideFunctions from './sidebar';
 
 let w, h, radius, svg, sideW;
 const m = { t: 10, b: 10, l: 10, r: 10};
-const labelStart = 30;
-const outer = 40;
-const inner = 46;
+const labelStart = 0;
+const outer = 10;
+const inner = 16;
 const pi = Math.PI;
 const pathOpacity = 0.2;
 const pathOpacityDur = 0.8;
 let timeCount = new Date('1/1/2018');
 const oneDay = 1000 * 60 * 60 * 24;
-const dayDuration = 250;
+const dayDuration = 500;
 const months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
 let type;
 let exploreCount = 0;
@@ -55,12 +55,13 @@ const scaleTime = d3.scaleTime();
 const scaleTimeBar = d3.scaleTime();
 const scaleCount = d3.scaleLinear();
 const scaleIntake = d3.scaleTime();
-const interactVarObj = { pathOpacity, pathOpacityDur, scaleColor, scaleCount, scaleHistCount };
+const interactVarObj = { pathOpacity, pathOpacityDur, scaleColor, scaleCount, scaleHistCount, scaleTimeBar, scaleLosHist };
 
 idleFunctions.createIdlePage();
 
 d3.select('#btn-idle')
   .on('click',function(){
+    clearInterval(idleFunctions.animationIntervalObj.animationInterval);
     idleFunctions.inactivityTime();
     d3.select('#idle')
       .classed('hidden',true);
@@ -75,7 +76,8 @@ d3.select('#btn-idle')
         months,
         timeCount,
         scaleCount,
-        scaleTimeBar
+        scaleTimeBar,
+        maxCount
       }
       flowFunctions.animateFlow(reanimateObj, sideFunctions.barH, sideFunctions.barW, sideFunctions.colW);
       sideFunctions.generateSummary('flow',summaryVarObj);
@@ -164,7 +166,7 @@ function runData(){
   w = d3.select('#visualization-container').node().clientWidth;
   h = d3.select('#visualization-container').node().clientWidth;
   sideW = d3.select('#supplemental').node().clientWidth;
-  radius = Math.min((w*.7), (h*.7)) / 2;
+  radius = (w*.6) / 2;
 
   const contentW = d3.select('#content').node().clientWidth;
   d3.select('#supplemental').style('left',(contentW-w-sideW)+'px');
@@ -389,9 +391,9 @@ function runData(){
     });
     if(typeMost == 'CAT'){ typeMost = 'cats'; }
     else if(typeMost == 'DOG'){ typeMost = 'dogs'; }
-    else if(typeMost == 'OTHER'){ typeMost = 'furries'; }
+    else if(typeMost == 'OTHER'){ typeMost = 'small & furry animals'; }
     else if(typeMost == 'BIRD'){ typeMost = 'birds'; }
-    else{ typeMost = 'livestock'; }
+    else{ typeMost = 'barnyard animals'; }
 
     // svg.append('text')
     //   .text('intake')
@@ -564,7 +566,7 @@ function runData(){
 
     const maxIntakeCount = d3.max(aggIntake.map(function(d){return d.values.length}));
     const maxOutcomeCount = d3.max(aggOutcome.map(function(d){return d.values.length}));
-    maxCount = Math.max(maxIntakeCount, maxOutcomeCount);
+    maxCount = Math.max(maxIntakeCount, maxOutcomeCount)*1.2;
     interactVarObj.maxCount = maxCount;
 
     scaleCount
@@ -587,7 +589,7 @@ function runData(){
       })
     });
 
-    const maxBin = d3.max(bins, function(d) { return d.length; })
+    const maxBin = d3.max(bins, function(d) { return d.length; })*1.2;
     interactVarObj.maxBin = maxBin;
 
     scaleHistCount

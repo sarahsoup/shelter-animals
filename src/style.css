@@ -15,6 +15,21 @@
   font-size: 10px;
 }
 
+.supplement-title{
+  font-size: 10px;
+  display: block;
+  margin: 20px 0px 10px 0px;
+  padding-left: 10px;
+}
+
+#summary-text{
+  font-size: 10px;
+}
+
+.text-larger{
+  font-size: 13px;
+}
+
 @media only screen and (min-width: 1300px){
   .btn-views{
     height: 40px;
@@ -29,6 +44,21 @@
     cursor: pointer;
     fill: #A9A9A9;
     font-size: 12px;
+  }
+
+  .supplement-title{
+    font-size: 10px;
+    display: block;
+    margin: 20px 0px 15px 0px;
+    padding-left: 10px;
+  }
+
+  #summary-text{
+    font-size: 12px;
+  }
+
+  .text-larger{
+    font-size: 15px;
   }
 }
 
@@ -139,13 +169,17 @@ h1{
   min-height: 256px;
 }
 
+.bold{
+  font-weight: bold;
+}
+
 .bars-intake, .bars-outcome, .bars-duration{
   fill: #A9A9A9;
 }
 
-.bars-highlighted{
+/* .bars-highlighted{
   fill: #4d4d4d;
-}
+} */
 
 #btn-group-views{
   opacity: 0;
@@ -204,13 +238,14 @@ h1{
 
 .centered{
   display: block;
-  margin-left: auto;
-  margin-right: auto;
+  margin-left: 10px;
+  /* margin-left: auto;
+  margin-right: auto; */
 }
 
 #data-info{
   position: absolute;
-  bottom: 0px;
+  bottom: 50px;
   margin-bottom: 10px;
   font-size: 10px;
 }

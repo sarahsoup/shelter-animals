@@ -2,6 +2,9 @@ import * as d3 from 'd3';
 import interactions from './interact';
 import './style.css';
 
+let animationIntervalObj = {};
+let iterationsObj = {};
+
 function inactivityTime() {
     let t;
     window.onload = resetTimer;
@@ -10,7 +13,7 @@ function inactivityTime() {
 
     function resetTimer() {
         clearTimeout(t);
-        t = setTimeout(idle, 240000) //four minutes...
+        t = setTimeout(idle, 120000) //2 minutes...
     }
 
     function idle() {
@@ -21,7 +24,9 @@ function inactivityTime() {
 function showIdlePage(){
 
   console.log('timed out!');
+
   interactions.unhighlight();
+
   d3.select('#idle')
     .classed('hidden',false);
   d3.select('#content')
@@ -34,6 +39,9 @@ function showIdlePage(){
   d3.select('#timeCount')
     .style('opacity',0);
 
+  //animate prints
+  animateIdlePage(iterationsObj.dogIterations,iterationsObj.birdIterations,iterationsObj.catIterations,iterationsObj.horseIterations);
+
 }
 
 function createIdlePage(){
@@ -41,7 +49,7 @@ function createIdlePage(){
   const svgW = d3.select('#idle-container').node().clientWidth;
   const textW = d3.select('#idle-text-g').node().clientWidth;
 
-  const svg = d3.select('#idle-svg')
+  d3.select('#idle-svg')
     .attr('height',svgW/2)
     .attr('width',svgW);
 
@@ -49,62 +57,157 @@ function createIdlePage(){
     .style('top', '25%')
     .style('left', (w-textW)/2 + 'px');
 
-  const dog = svg.append('g')
-    .attr('id','dog-g');
+  // append prints
+  const dogIterations = appendPrints('dog',svgW);
+  const birdIterations = appendPrints('bird',svgW);
+  const catIterations = appendPrints('cat',svgW);
+  const horseIterations = appendPrints('horse',svgW);
 
-  const dogX1 = getRandomInt(svgW);
-  const dogX2 = getRandomInt(svgW);
-  const dogY1 = svgW/2;
-  const dogY2 = 0;
+  iterationsObj.dogIterations = dogIterations;
+  iterationsObj.birdIterations = birdIterations;
+  iterationsObj.catIterations = catIterations;
+  iterationsObj.horseIterations = horseIterations;
 
-  const line = dog.append('line')
-    .attr('x1',dogX1)
-    .attr('x2',dogX2)
-    .attr('y1',dogY1)
-    .attr('y2',dogY2);
+  // animate prints
+  animateIdlePage(dogIterations,birdIterations,catIterations,horseIterations);
+}
 
-  const pawSet = 80;
-  const length = getLength(dogY1,dogY2,dogX1,dogX2);
-  const pawIterations = length/pawSet;
+function appendPrints(animal,svgW){
+  const group = d3.select('#idle-svg').append('g')
+    .attr('id',animal+'-g');
+
+  const x1 = getRandomInt(svgW);
+  const x2 = getRandomInt(svgW);
+  const y1 = svgW/2;
+  const y2 = 0;
+
+  const line = group.append('line')
+    .attr('x1',x1)
+    .attr('x2',x2)
+    .attr('y1',y1)
+    .attr('y2',y2);
+
+  let set = 0;
+  if(animal == 'dog'){
+    set = 80;
+  }else if(animal == 'bird'){
+    set = 80;
+  }else if(animal == 'cat'){
+    set = 80;
+  }else if(animal == 'horse'){
+    set = 80;
+  }
+
+  const length = getLength(y1,y2,x1,x2);
+  const iterations = length/set;
 
   let i;
-  for(i = 1; i < pawIterations+1; i++){
-    const distanceRatio = ((i-1)*pawSet)/length;
-    const changeX = (1-(distanceRatio)*dogX1 + distanceRatio*dogX2);
-    const changeY = (1-(distanceRatio)*dogY1 + distanceRatio*dogY2);
+  for(i = 1; i < iterations+1; i++){
+    const distanceRatio = ((i-1)*set)/length;
+    const changeX = (1-(distanceRatio)*x1 + distanceRatio*x2);
+    const changeY = (1-(distanceRatio)*y1 + distanceRatio*y2);
 
-    dog.append('svg:image')
-      .attr('xlink:href','./SVG/dog-left.svg')
-      .attr('class','prints')
-      .attr('id','prints-dog-left-'+i)
-      .attr('x',dogX1-40)
-      .attr('y',dogY1-40)
+    group.append('svg:image')
+      .attr('xlink:href','./SVG/'+animal+'-left.svg')
+      .attr('class','prints prints-'+animal)
+      .attr('id','prints-'+animal+'-left-'+i)
+      .attr('x',x1-40)
+      .attr('y',y1-40)
       .attr('width',40)
       .attr('height',40)
       .style('opacity',0)
       .attr('transform',function(){
-        const angle = getAngle(dogY1,dogY2,dogX1,dogX2);
+        const angle = getAngle(y1,y2,x1,x2);
         const centerX = this.getBBox().x + this.getBBox().width/2;
         const centerY = this.getBBox().y + this.getBBox().height/2;
         return `translate(${changeX},${changeY})rotate(${angle+90},${centerX},${centerY})`;
       })
-    dog.append('svg:image')
-      .attr('xlink:href','./SVG/dog-right.svg')
-      .attr('class','prints')
-      .attr('id','prints-dog-right-'+i)
-      .attr('x',dogX1+40)
-      .attr('y',dogY1-60)
+    group.append('svg:image')
+      .attr('xlink:href','./SVG/'+animal+'-right.svg')
+      .attr('class','prints prints-'+animal)
+      .attr('id','prints-'+animal+'-right-'+i)
+      .attr('x',x1+40)
+      .attr('y',y1-60)
       .attr('width',40)
       .attr('height',40)
       .style('opacity',0)
       .attr('transform',function(){
-        const angle = getAngle(dogY1,dogY2,dogX1,dogX2);
+        const angle = getAngle(y1,y2,x1,x2);
         const centerX = this.getBBox().x + this.getBBox().width/2;
         const centerY = this.getBBox().y + this.getBBox().height/2;
         return `translate(${changeX},${changeY})rotate(${angle+90},${centerX},${centerY})`;
       })
+  }
+  return iterations+1;
+}
 
-    d3.selectAll('.prints')
+function animateIdlePage(dogIterations,birdIterations,catIterations,horseIterations){
+  d3.selectAll('.prints-dog')
+    .transition()
+    .delay(function(){
+      const printDelay = parseInt(this.id.match(/\d+/));
+      if(this.id.includes('left')){
+        return printDelay*500;
+      }else{
+        return printDelay*500+250;
+      }
+    })
+    .style('opacity',1)
+    .transition()
+    .delay(1000)
+    .duration(4000)
+    .style('opacity',0);
+
+  d3.selectAll('.prints-bird')
+    .transition()
+    .delay(function(){
+      const printDelay = parseInt(this.id.match(/\d+/));
+      if(this.id.includes('left')){
+        return (dogIterations*500)+(printDelay*500);
+      }else{
+        return (dogIterations*500)+(printDelay*500+250);
+      }
+    })
+    .style('opacity',1)
+    .transition()
+    .delay(1000)
+    .duration(4000)
+    .style('opacity',0);
+
+  d3.selectAll('.prints-cat')
+    .transition()
+    .delay(function(){
+      const printDelay = parseInt(this.id.match(/\d+/));
+      if(this.id.includes('left')){
+        return (dogIterations*500)+(birdIterations*500)+(printDelay*500);
+      }else{
+        return (dogIterations*500)+(birdIterations*500)+(printDelay*500+250);
+      }
+    })
+    .style('opacity',1)
+    .transition()
+    .delay(1000)
+    .duration(4000)
+    .style('opacity',0);
+
+  d3.selectAll('.prints-horse')
+    .transition()
+    .delay(function(){
+      const printDelay = parseInt(this.id.match(/\d+/));
+      if(this.id.includes('left')){
+        return (dogIterations*500)+(birdIterations*500)+(catIterations*500)+(printDelay*500);
+      }else{
+        return (dogIterations*500)+(birdIterations*500)+(catIterations*500)+(printDelay*500+250);
+      }
+    })
+    .style('opacity',1)
+    .transition()
+    .delay(1000)
+    .duration(4000)
+    .style('opacity',0);
+
+  const animationInterval = setInterval(function(){
+    d3.selectAll('.prints-dog')
       .transition()
       .delay(function(){
         const printDelay = parseInt(this.id.match(/\d+/));
@@ -119,10 +222,57 @@ function createIdlePage(){
       .delay(1000)
       .duration(4000)
       .style('opacity',0);
-  }
 
-  //animate prints
+    d3.selectAll('.prints-bird')
+      .transition()
+      .delay(function(){
+        const printDelay = parseInt(this.id.match(/\d+/));
+        if(this.id.includes('left')){
+          return (dogIterations*500)+(printDelay*500);
+        }else{
+          return (dogIterations*500)+(printDelay*500+250);
+        }
+      })
+      .style('opacity',1)
+      .transition()
+      .delay(1000)
+      .duration(4000)
+      .style('opacity',0);
 
+    d3.selectAll('.prints-cat')
+      .transition()
+      .delay(function(){
+        const printDelay = parseInt(this.id.match(/\d+/));
+        if(this.id.includes('left')){
+          return (dogIterations*500)+(birdIterations*500)+(printDelay*500);
+        }else{
+          return (dogIterations*500)+(birdIterations*500)+(printDelay*500+250);
+        }
+      })
+      .style('opacity',1)
+      .transition()
+      .delay(1000)
+      .duration(4000)
+      .style('opacity',0);
+
+    d3.selectAll('.prints-horse')
+      .transition()
+      .delay(function(){
+        const printDelay = parseInt(this.id.match(/\d+/));
+        if(this.id.includes('left')){
+          return (dogIterations*500)+(birdIterations*500)+(catIterations*500)+(printDelay*500);
+        }else{
+          return (dogIterations*500)+(birdIterations*500)+(catIterations*500)+(printDelay*500+250);
+        }
+      })
+      .style('opacity',1)
+      .transition()
+      .delay(1000)
+      .duration(4000)
+      .style('opacity',0);
+
+  },(((dogIterations+birdIterations+catIterations+horseIterations)*500)+1000));
+  animationIntervalObj.animationInterval = animationInterval;
 }
 
 function getRandomInt(max) {
@@ -140,5 +290,7 @@ function getLength(y1,y2,x1,x2){
 
 export default{
   inactivityTime,
-  createIdlePage
+  createIdlePage,
+  animateIdlePage,
+  animationIntervalObj
 }
