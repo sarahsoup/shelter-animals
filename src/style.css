@@ -221,16 +221,6 @@ h1{
   border-radius: 0px 20px 20px 0px;
 }
 
-.btn-stories{
-  cursor: pointer;
-  background-color: white;
-  border: 1px solid black;
-  border-radius: 20px;
-  padding: 8px 16px;
-  margin: 5px;
-  font-size: 10px;
-}
-
 .btn-clicked{
   background-color: black;
   color: white;
