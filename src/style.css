@@ -30,6 +30,21 @@
   font-size: 13px;
 }
 
+.btn-stories{
+  font-size: 10px;
+}
+
+#summary{
+  min-height: 256px;
+}
+
+#data-info{
+  position: absolute;
+  bottom: 50px;
+  margin-bottom: 10px;
+  font-size: 10px;
+}
+
 @media only screen and (min-width: 1300px){
   .btn-views{
     height: 40px;
@@ -47,7 +62,7 @@
   }
 
   .supplement-title{
-    font-size: 10px;
+    font-size: 12px;
     display: block;
     margin: 20px 0px 15px 0px;
     padding-left: 10px;
@@ -57,8 +72,23 @@
     font-size: 12px;
   }
 
+  #summary{
+    min-height: 300px;
+  }
+
   .text-larger{
     font-size: 15px;
+  }
+
+  .btn-stories{
+    font-size: 12px;
+  }
+
+  #data-info{
+    position: absolute;
+    bottom: 350px;
+    margin-bottom: 10px;
+    font-size: 10px;
   }
 }
 
@@ -69,7 +99,6 @@
   border-radius: 20px;
   padding: 8px 16px;
   margin: 5px;
-  font-size: 10px;
 }
 
 /* GENERAL STYLE */
@@ -165,10 +194,6 @@ h1{
   font-size: 8px;
 }
 
-#summary{
-  min-height: 256px;
-}
-
 .bold{
   font-weight: bold;
 }
@@ -241,11 +266,4 @@ h1{
   margin-left: 10px;
   /* margin-left: auto;
   margin-right: auto; */
-}
-
-#data-info{
-  position: absolute;
-  bottom: 50px;
-  margin-bottom: 10px;
-  font-size: 10px;
 }
