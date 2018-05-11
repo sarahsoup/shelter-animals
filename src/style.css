@@ -39,13 +39,12 @@
 }
 
 #data-info{
-  position: absolute;
-  bottom: 50px;
-  margin-bottom: 10px;
+  margin-top: 30px;
   font-size: 10px;
+  padding-left: 10px;
 }
 
-@media only screen and (min-width: 1300px){
+@media only screen and (min-width: 1500px){
   .btn-views{
     height: 40px;
     width: 84px;
@@ -85,20 +84,10 @@
   }
 
   #data-info{
-    position: absolute;
-    bottom: 350px;
-    margin-bottom: 10px;
+    margin-top: 50px;
     font-size: 10px;
+    padding-left: 10px;
   }
-}
-
-.btn-stories{
-  cursor: pointer;
-  background-color: white;
-  border: 1px solid black;
-  border-radius: 20px;
-  padding: 8px 16px;
-  margin: 5px;
 }
 
 /* GENERAL STYLE */
@@ -202,10 +191,6 @@ h1{
   fill: #A9A9A9;
 }
 
-/* .bars-highlighted{
-  fill: #4d4d4d;
-} */
-
 #btn-group-views{
   opacity: 0;
   position: absolute;
@@ -243,12 +228,17 @@ h1{
 
 }
 
-.icons path{
-  fill: black !important; /* doesn't work */
+.btn-stories{
+  cursor: pointer;
+  background-color: white;
+  border: 1px solid black;
+  border-radius: 20px;
+  padding: 8px 16px;
+  margin: 5px;
 }
 
 .icon-labels{
-  font-size: 8pt;
+  font-size: 10px;
 }
 
 .centered{

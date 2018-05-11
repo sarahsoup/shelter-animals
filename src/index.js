@@ -649,6 +649,7 @@ function runData(){
     sideFunctions.summaryInformation(sideW,summaryVarObj);
     sideFunctions.makeBarChart(aggIntake,aggOutcome,bins,scalesObj,months,timeCount,maxDate,oneDay);
     sideFunctions.createAnimalBtns(type,sideW,scaleColor,type,labelMap,aggIntake,aggOutcome,bins);
+    sideFunctions.createStories();
     sideFunctions.addDataInfo(sideW);
 
   })

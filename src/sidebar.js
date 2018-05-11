@@ -53,7 +53,7 @@ function addDataInfo(sideW){
   d3.select('#data-info')
     .attr('width',sideW)
     .attr('height',50)
-    .html('data graciously provided by Animal Rescue League, representing the animal population at their three shelters collectively for January 2018');
+    .html('data graciously provided by Animal Rescue League of Boston, representing the animal population at their three shelters collectively for January 2018');
 }
 
 function makeBarChart(aggIntake,aggOutcome,bins,obj,months,timeCount,maxDate,oneDay){
@@ -248,7 +248,7 @@ function createAnimalBtns(type,sideW,scaleColor,obj,labelMap,aggIntake,aggOutcom
   let intakeSet = new Set();
   let outcomeSet = new Set();
 
-  d3.select('#supplemental')
+  d3.select('#animal-type-div')
     .append('text')
     .attr('class','supplement-title')
     .text('animal types');
@@ -257,7 +257,7 @@ function createAnimalBtns(type,sideW,scaleColor,obj,labelMap,aggIntake,aggOutcom
     // .style('margin','20px 0px 10px 0px')
     // .style('padding-left','10px');
 
-  const btnSvg = d3.select('#supplemental')
+  const btnSvg = d3.select('#animal-type-div')
     .append('svg')
     .attr('width',sideW)
     .attr('height',80)
@@ -336,21 +336,15 @@ function createAnimalBtns(type,sideW,scaleColor,obj,labelMap,aggIntake,aggOutcom
         highlightType(d.key, obj, labelMap);
       }
     });
-
-  createStories();
 }
 
 function createStories(){
-  d3.select('#supplemental')
+  d3.select('#animal-stories-div')
     .append('text')
     .attr('class','supplement-title')
     .text('animal stories');
-    // .style('font-size','10px')
-    // .style('display','block')
-    // .style('margin','20px 0px 10px 0px')
-    // .style('padding-left','10px');
 
-  const stories = d3.select('#supplemental')
+  const stories = d3.select('#animal-stories-div')
     .append('g')
     .attr('id','btn-stories');
 
@@ -630,6 +624,7 @@ export default{
   makeBarChart,
   createAnimalBtns,
   summaryInformation,
+  createStories,
   generateSummary,
   highlightType,
   highlightFlow,
