@@ -609,7 +609,7 @@ function highlightStory(name){
         return '<span class="bold">Mischa</span> is a 5-year-old Akita mix who has been in a shelter since the summer of 2015. He was treated for heartworm before being transferred to the shelter in December. He was adopted January 12!'
       }
       else if(name == 'bufu'){
-        return '<span class="bold">Bufu</span> is a pot-bellied pig less than 2 years old. She was surrendered by her ownder in November.'
+        return '<span class="bold">Bufu</span> is a pot-bellied pig less than 2 years old. She was surrendered by her owner in November.'
       }
       else if(name == 'thalia'){
         return '<span class="bold">Thalia</span> is a 6-month-old cat surrended through the Healthy Moms Happy Litters program, where an owner gets their dog or cat spayed/neutered and surrenders their litter for adoption.'
