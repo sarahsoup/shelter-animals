@@ -211,10 +211,10 @@ function runData(){
     data.sort(function(a,b){
       //return d3.ascending(a.intake_type, b.intake_type) || d3.ascending(a.outcome_type, b.outcome_type) || d3.ascending(a.type, b.type) || a.intake_date.getTime() - b.intake_date.getTime();
       if(a.outcome_type == 'SHELTER' && b.outcome_type == 'ADOPTION' || b.outcome_type == 'SHELTER' && a.outcome_type == 'ADOPTION'){
-        return d3.ascending(a.intake_type, b.intake_type) || a.outcome_total - b.outcome_total || d3.ascending(a.type, b.type) || a.intake_date.getTime() - b.intake_date.getTime();
+        return d3.ascending(a.intake_type, b.intake_type) || a.outcome_total - b.outcome_total || d3.ascending(a.type, b.type) || b.intake_date.getTime() - a.intake_date.getTime() || d3.ascending(a.id, b.id);
       }
       else{
-        return d3.ascending(a.intake_type, b.intake_type) || b.outcome_total - a.outcome_total || d3.ascending(a.type, b.type) || a.intake_date.getTime() - b.intake_date.getTime();
+        return d3.ascending(a.intake_type, b.intake_type) || b.outcome_total - a.outcome_total || d3.ascending(a.type, b.type) || b.intake_date.getTime() - a.intake_date.getTime() || d3.ascending(a.id, b.id);
       }
     })
 
@@ -250,7 +250,7 @@ function runData(){
     // sort data for outcome
     data.sort(function(a,b){
       // return d3.ascending(a.outcome_type, b.outcome_type) || d3.ascending(a.intake_type, b.intake_type) || d3.ascending(a.type, b.type) || a.outcome_date.getTime() - b.outcome_date.getTime();
-      return d3.ascending(a.outcome_type, b.outcome_type) || b.intake_total - a.intake_total || d3.ascending(a.type, b.type) || a.intake_date.getTime() - b.intake_date.getTime();
+      return d3.ascending(a.outcome_type, b.outcome_type) || b.intake_total - a.intake_total || d3.ascending(a.type, b.type) || b.intake_date.getTime() - a.intake_date.getTime() || d3.ascending(a.id, b.id);
     })
 
     // map outcome description and calc outcome index
