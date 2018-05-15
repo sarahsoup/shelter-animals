@@ -158,6 +158,7 @@ function makeBarChart(aggIntake,aggOutcome,bins,obj,months,timeCount,maxDate,one
     .attr('height',function(d){ return obj.scaleCount(d.values.length); })
     .style('cursor','pointer')
     .on('mouseenter',function(d){
+      console.log(this.getBoundingClientRect().height);
       interactions.highlightDate(d.key);
     })
     .on('mouseleave',function(d){
@@ -176,6 +177,7 @@ function makeBarChart(aggIntake,aggOutcome,bins,obj,months,timeCount,maxDate,one
     .attr('height',function(d){ return obj.scaleCount(d.values.length); })
     .style('cursor','pointer')
     .on('mouseenter',function(d){
+      console.log(this.getBoundingClientRect().height);
       interactions.highlightDate(d.key);
     })
     .on('mouseleave',function(d){
@@ -237,7 +239,7 @@ function makeBarChart(aggIntake,aggOutcome,bins,obj,months,timeCount,maxDate,one
     .attr('id',function(d){ return 'counts-duration-' + d.x1; })
     .text(function(d){ return d.length; })
     .attr('x',function(d){ return obj.scaleLosHist(d.x0); })
-    .attr('y',function(d){ return (barH*1.5)-obj.scaleHistCount(d.length)-3; })
+    .attr('y',0)
     .style('font-size','8px')
     .style('text-anchor','middle')
     .style('opacity',0);
@@ -381,7 +383,6 @@ function createStories(){
     .on('click',function(d){
       if(d3.select(this).classed('btn-clicked')){
         d3.select(this).classed('btn-clicked',false);
-        // dispatch.call('unhighlight');
         interactions.unhighlight();
       }else{
         d3.selectAll('.btn-stories').classed('btn-clicked',false);

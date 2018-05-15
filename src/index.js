@@ -250,7 +250,7 @@ function runData(){
     // sort data for outcome
     data.sort(function(a,b){
       // return d3.ascending(a.outcome_type, b.outcome_type) || d3.ascending(a.intake_type, b.intake_type) || d3.ascending(a.type, b.type) || a.outcome_date.getTime() - b.outcome_date.getTime();
-      return d3.ascending(a.outcome_type, b.outcome_type) || b.intake_total - a.intake_total || d3.ascending(a.type, b.type) /*|| a.outcome_date.getTime() - b.outcome_date.getTime()*/;
+      return d3.ascending(a.outcome_type, b.outcome_type) || b.intake_total - a.intake_total || d3.ascending(a.type, b.type) || a.intake_date.getTime() - b.intake_date.getTime();
     })
 
     // map outcome description and calc outcome index
@@ -291,12 +291,10 @@ function runData(){
 
     scaleLos
       .domain([minLos,maxLos])
-      // .range([-(w/2)+110,(w/2)-10])
       .range([-(2*w/5),(2*w/5)]);
 
     scaleTime
       .domain([timeCount,maxDate])
-      // .range([-(h/2)+150,(h/2)-100])
       .range([-(1*h/5),(3*h/10)]);
 
 
@@ -564,7 +562,7 @@ function runData(){
     });
     aggOutcome.sort(function(a,b){ return a.key.getTime() - b.key.getTime(); })
 
-    const maxIntakeCount = d3.max(aggIntake.map(function(d){return d.values.length}));
+    const maxIntakeCount = d3.max(aggIntake.filter(function(d){ return d.key.getTime() >= timeCount.getTime(); }).map(function(d){return d.values.length}));
     const maxOutcomeCount = d3.max(aggOutcome.map(function(d){return d.values.length}));
     maxCount = Math.max(maxIntakeCount, maxOutcomeCount)*1.2;
     interactVarObj.maxCount = maxCount;
@@ -574,7 +572,6 @@ function runData(){
 
     const histogram = d3.histogram()
       .value(function(d){ return d.los_new; })
-      // .domain(scaleLosHist.domain())
       .thresholds(scaleLosHist.ticks(20));
 
     const bins = histogram(data);

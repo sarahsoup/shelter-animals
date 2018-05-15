@@ -377,6 +377,9 @@ function redrawFlow(scales,views,barH){
     .duration(1000)
     .style('opacity',0);
 
+  d3.selectAll('.counts-duration')
+    .attr('y',0);
+
   // transition in sidebar bars for intake and outcome
   d3.selectAll('.bars-intake')
     .transition()
@@ -401,6 +404,12 @@ function redrawFlow(scales,views,barH){
     .delay(5000)
     .style('opacity',1);
 
+  d3.selectAll('.counts-intake')
+    .attr('y',function(d){ return barH-scales.scaleCount(d.values.length)-3; });
+
+  d3.selectAll('.counts-outcome')
+    .attr('y',function(d){ return barH+9+scales.scaleCount(d.values.length); });
+
 }
 
 function animateFlow(obj, barH, barW, colW){
@@ -419,6 +428,8 @@ function animateFlow(obj, barH, barW, colW){
     .attr('height',0);
   d3.select('#bar-context-duration')
     .style('opacity',0);
+  d3.selectAll('.counts-duration')
+    .attr('y',0);
 
   //bring in flow elements
   obj.scaleCount.domain([0,obj.maxCount]);
@@ -432,12 +443,14 @@ function animateFlow(obj, barH, barW, colW){
     .style('fill','#A9A9A9')
     .style('opacity',1)
     .attr('height',function(d){ return obj.scaleCount(d.values.length); });
-
   d3.select('#title-bars')
     .text('daily counts');
-
   d3.select('#bar-context-flow')
     .style('opacity',1);
+  d3.selectAll('.counts-intake')
+    .attr('y',function(d){ return barH-obj.scaleCount(d.values.length)-3; });
+  d3.selectAll('.counts-outcome')
+    .attr('y',function(d){ return barH+9+obj.scaleCount(d.values.length); });
 
   d3.selectAll('.paths')
     .attr('d',curve)

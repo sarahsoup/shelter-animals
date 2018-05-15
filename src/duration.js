@@ -42,13 +42,11 @@ function drawDuration(scales,barH,pathOpacityDur){
     .transition()
     .style('opacity',0);
 
-  // d3.select('#context-minX')
-  //   .transition()
-  //   .style('opacity',0);
-  //
-  // d3.select('#context-maxX')
-  //   .transition()
-  //   .style('opacity',0);
+  d3.selectAll('.counts-intake')
+    .attr('y', 0);
+
+  d3.selectAll('.counts-outcome')
+    .attr('y', 0);
 
   // new path function
   const line = d3.line()
@@ -94,6 +92,9 @@ function drawDuration(scales,barH,pathOpacityDur){
     .delay(2000)
     .duration(1000)
     .style('opacity',1);
+
+  d3.selectAll('.counts-duration')
+    .attr('y',function(d){ return (barH*1.5)-scales.scaleHistCount(d.length)-3; })
 
   // d3.select('#axis-count')
   //   .style('opacity',1);

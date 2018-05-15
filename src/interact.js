@@ -137,7 +137,7 @@ function highlightType(type, aggIntake, aggOutcome, bins){
       });
 
     // bar chart
-    const typeMax = Math.max(d3.max(aggIntake.map(function(d){return d.values[type]})), d3.max(aggOutcome.map(function(d){return d.values[type]})))*1.2;
+    const typeMax = Math.max(d3.max(aggIntake.filter(function(d){ return d.key.getTime() >= objects.timeCount.getTime(); }).map(function(d){return d.values[type]})), d3.max(aggOutcome.map(function(d){return d.values[type]})))*1.2;
     objects.interactVarObj.scaleCount.domain([0,typeMax]);
 
     d3.selectAll('.bars-intake')
@@ -292,13 +292,7 @@ function highlightDate(date){
         return .5;
       }
     });
-    // .classed('bars-highlighted',function(d){
-    //   if(d.key.getTime() == date.getTime()){
-    //     return true;
-    //   }else{
-    //     return false;
-    //   }
-    // });
+
   d3.select('#counts-intake-' + date.getMonth() + '-' + date.getDate())
     .style('opacity',1);
 
@@ -310,13 +304,7 @@ function highlightDate(date){
         return .5;
       }
     });
-    // .classed('bars-highlighted',function(d){
-    //   if(d.key.getTime() == date.getTime()){
-    //     return true;
-    //   }else{
-    //     return false;
-    //   }
-    // });
+
   d3.select('#counts-outcome-' + date.getMonth() + '-' + date.getDate())
     .style('opacity',1);
 };
@@ -330,13 +318,7 @@ function highlightBin(x1){
         return .5;
       }
     });
-    // .classed('bars-highlighted',function(d){
-    //   if(d.x1 == x1){
-    //     return true;
-    //   }else{
-    //     return false;
-    //   }
-    // });
+
   d3.select('#counts-duration-' + x1)
     .style('opacity',1);
 }

@@ -13,7 +13,7 @@ function inactivityTime() {
 
     function resetTimer() {
         clearTimeout(t);
-        t = setTimeout(idle, 240000) //4 minutes...
+        t = setTimeout(idle, 300000) //5 minutes...
     }
 
     function idle() {
