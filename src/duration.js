@@ -36,7 +36,9 @@ function drawDuration(scales,barH,pathOpacityDur){
     .attr('height',0);
 
   d3.select('#title-bars')
-    .text('duration histogram');
+    .transition()
+    .delay(3000)
+    .text('histogram of duration in days');
 
   d3.select('#bar-context-flow')
     .transition()
@@ -95,13 +97,6 @@ function drawDuration(scales,barH,pathOpacityDur){
 
   d3.selectAll('.counts-duration')
     .attr('y',function(d){ return (barH*1.5)-scales.scaleHistCount(d.length)-3; })
-
-  // d3.select('#axis-count')
-  //   .style('opacity',1);
-
-  // d3.select('#bar-svg').append('g')
-  //   .attr('transform', 'translate(0,' + (barH*2) + ')')
-  //   .call(d3.axisBottom(scaleHistCount));
 
 }
 

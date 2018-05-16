@@ -18,7 +18,7 @@
 .supplement-title{
   font-size: 10px;
   display: block;
-  margin: 20px 0px 10px 0px;
+  margin: 0px 0px 10px 0px;
   padding-left: 10px;
 }
 
@@ -73,6 +73,7 @@
 
   #summary{
     min-height: 300px;
+    margin-top: 40px;
   }
 
   .text-larger{
@@ -81,6 +82,10 @@
 
   .btn-stories{
     font-size: 12px;
+  }
+
+  #animal-type-div{
+    padding-top: 15px;
   }
 
   #data-info{

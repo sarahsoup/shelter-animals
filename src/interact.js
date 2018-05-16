@@ -12,8 +12,13 @@ function highlightFlow(type){
   intakeSet = new Set();
   outcomeSet = new Set();
 
-  d3.select('#timeCount')
-    .html(objects.summaryVarObj.labelMap.get(type));
+  if(type=='HMHL'){
+    d3.select('#timeCount')
+      .html('happy moms healthy litters');
+  }else{
+    d3.select('#timeCount')
+      .html(objects.summaryVarObj.labelMap.get(type));
+  }
 
   sideFunctions.highlightFlow(type,objects.flowSummaryObj);
 

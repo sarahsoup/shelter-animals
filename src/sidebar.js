@@ -53,7 +53,7 @@ function addDataInfo(sideW){
   d3.select('#data-info')
     .attr('width',sideW)
     .attr('height',50)
-    .html('data graciously provided by Animal Rescue League of Boston, representing the animal population at their three shelters collectively for January 2018');
+    .html('data graciously provided by the animal rescue league of boston, representing the animal population at their three shelters collectively for january 2018.<br/>project by sarah campbell.');
 }
 
 function makeBarChart(aggIntake,aggOutcome,bins,obj,months,timeCount,maxDate,oneDay){
@@ -158,7 +158,6 @@ function makeBarChart(aggIntake,aggOutcome,bins,obj,months,timeCount,maxDate,one
     .attr('height',function(d){ return obj.scaleCount(d.values.length); })
     .style('cursor','pointer')
     .on('mouseenter',function(d){
-      console.log(this.getBoundingClientRect().height);
       interactions.highlightDate(d.key);
     })
     .on('mouseleave',function(d){
@@ -177,7 +176,6 @@ function makeBarChart(aggIntake,aggOutcome,bins,obj,months,timeCount,maxDate,one
     .attr('height',function(d){ return obj.scaleCount(d.values.length); })
     .style('cursor','pointer')
     .on('mouseenter',function(d){
-      console.log(this.getBoundingClientRect().height);
       interactions.highlightDate(d.key);
     })
     .on('mouseleave',function(d){
@@ -440,8 +438,8 @@ function generateSummary(view,obj){
         '<span class="bold">' + ((obj.intakeDuring/obj.totalCount)*100).toFixed(0) + '%</span> entered shelter during month<br/>'+
         '<span class="bold">' + ((obj.outcomeDuring/obj.totalCount)*100).toFixed(0) + '%</span> left shelter during month<br/>'+
         '<span class="bold">' + obj.typeMost + '</span> were the most common animal<br/>'+
-        'the shortest length of stay was <span class="bold">' + obj.losExtent[0] + '</span> days<br/>'+
-        'the longest length of stay was <span class="bold">' + obj.losExtent[1] + '</span> days');
+        'the shortest duration in the shelter was <span class="bold">' + obj.losExtent[0] + '</span> days<br/>'+
+        'the longest duration was <span class="bold">' + obj.losExtent[1] + '</span> days');
   }else{
     d3.select('#summary-text').html(null);
   }
@@ -457,10 +455,6 @@ function highlightType(type,obj,labelMap){
 
   d3.select('#animal-img')
     .attr('src',null);
-  // d3.select('#summary-text')
-  //   .style('margin-left','0%')
-  //   .style('margin-right','5%')
-  //   .html('this will have information for ' + typeName);
 
   obj.forEach(function(d){
     if(d.key == type){
@@ -482,8 +476,8 @@ function highlightType(type,obj,labelMap){
             '<span class="bold">' + ((d.intakePrior/d.value)*100).toFixed(0) + '%</span> in shelter at beginning of month<br/>'+
             '<span class="bold">' + ((d.intakeDuring/d.value)*100).toFixed(0) + '%</span> entered shelter during month<br/>'+
             '<span class="bold">' + ((d.outcomeDuring/d.value)*100).toFixed(0) + '%</span> left shelter during month<br/>'+
-            'the shortest length of stay was <span class="bold">' + d.losMin + '</span> days<br/>'+
-            'the longest length of stay was <span class="bold">' + d.losMax + '</span> days');
+            'the shortest duration in the shelter was <span class="bold">' + d.losMin + '</span> days<br/>'+
+            'the longest duration was <span class="bold">' + d.losMax + '</span> days');
       }
     }
   })
@@ -595,25 +589,25 @@ function highlightStory(name){
     .style('margin-right',/*'15%'*/ '30%')
     .html(function(){
       if(name == 'bella'){
-        return '<span class="bold">Bella</span> has been in the shelter three times. Bella was surrendered by her owner over multiple behavior concerns, but they are predictable and manageable.'
+        return '<span class="bold">bella</span> has been in the shelter three times. the cocker spaniel mix was surrendered by her owner over multiple behavior concerns, which are predictable and manageable.'
       }
       else if(name == 'hoppy'){
-         return '<span class="bold">Hoppy</span> is a 40-year-old parrot with an injured left foot, most likely from being caught in the wild. He was adopted on January 13th!'
+         return '<span class="bold">hoppy</span> is a 40-year-old parrot with an injured left foot, most likely from being caught in the wild. he was adopted, returned, and adopted once again during the month.'
       }
       else if(name == 'kringle'){
-        return '<span class="bold">Kringle</span> is a 5-year-old siamese cat whose owner passed away in November, so he was taken to the shelter. He was adopted into a new home on January 6th.'
+        return '<span class="bold">kringle</span> is a 5-year-old siamese cat whose owner passed away in november, so he was taken to the shelter. he was adopted into a new home on january 6th.'
       }
       else if(name == 'rowan'){
-        return '<span class="bold">Rowan</span> is a 9-month-old short-haired rabbit that was transferred from another organization. He was taken in towards the end of the month.'
+        return '<span class="bold">rowan</span> is a 9-month-old short-haired rabbit that was transferred from another organization towards the end of the month.'
       }
       else if(name == 'mischa'){
-        return '<span class="bold">Mischa</span> is a 5-year-old Akita mix who has been in a shelter since the summer of 2015. He was treated for heartworm before being transferred to the shelter in December. He was adopted January 12!'
+        return '<span class="bold">mischa</span> is a 5-year-old akita mix who has been in a shelter since the summer of 2015. he was treated for heartworm before being transferred to the shelter in december. He was adopted january 12!'
       }
       else if(name == 'bufu'){
-        return '<span class="bold">Bufu</span> is a pot-bellied pig less than 2 years old. She was surrendered by her owner in November.'
+        return '<span class="bold">bufu</span> is a pot-bellied pig less than 2 years old. she was surrendered by her owner in november.'
       }
       else if(name == 'thalia'){
-        return '<span class="bold">Thalia</span> is a 6-month-old cat surrended through the Healthy Moms Happy Litters program, where an owner gets their dog or cat spayed/neutered and surrenders their litter for adoption.'
+        return '<span class="bold">thalia</span> is a 6-month-old cat surrended through the healthy moms happy litters program, where an owner gets their dog or cat spayed/neutered and surrenders their litter for adoption.'
       }
     })
 }

@@ -202,14 +202,16 @@ function drawFlow(data,intake,outcome,obj){
         d3.select('#timeCount')
           .html(obj.months[obj.timeCount.getMonth()]+' '+ (obj.timeCount.getDate() + i));
       }
-      if(i == 30){
+      if(i == 31){
         d3.select('#timeCount')
           .transition()
           .style('opacity',0);
-      }else if(i == 32){
+      }
+      else if(i == 33){
         d3.select('#timeCount')
           .html('flow');
-      }else if(i == 33){
+      }
+      else if(i == 34){
         clearInterval(timeInterval);
         d3.select('#timeCount')
           .transition()
@@ -249,7 +251,6 @@ function drawFlow(data,intake,outcome,obj){
     svg.append('g')
       .attr('class','axis')
       .attr('id','axis-time')
-      //.attr('transform','translate('+ ((-obj.w/2)+100) +',0)')
       .attr('transform','translate('+ (-(2*obj.w/5)-20) +',0)')
       .call(d3.axisLeft(obj.scaleTime).tickFormat(d3.timeFormat("%b %d")).ticks(d3.timeDay.every(7)).tickSize(-obj.w))
       .style('opacity',0);
@@ -270,15 +271,27 @@ function drawFlow(data,intake,outcome,obj){
       .style('opacity',0);
     svg.select('#axis-duration')
       .append('text')
-      .text('longest length of stay')
+      .text('longest duration')
       .attr('x',-(2*obj.w/5))
-      .attr('y',-(2*obj.h/5)+80)
+      .attr('y',function(){
+        if(screen.width < 1500){
+          return -(2*obj.h/5)+80;
+        }else{
+          return -(2*obj.h/5)+85;
+        }
+      })
       .style('text-anchor','start');
     svg.select('#axis-duration')
       .append('text')
-      .text('shortest length of stay')
+      .text('shortest duration')
       .attr('x',(2*obj.w/5))
-      .attr('y',-(2*obj.h/5)+80)
+      .attr('y',function(){
+        if(screen.width < 1500){
+          return -(2*obj.h/5)+80;
+        }else{
+          return -(2*obj.h/5)+85;
+        }
+      })
       .style('text-anchor','end');
 
 };
@@ -336,6 +349,7 @@ function redrawFlow(scales,views,barH){
 
   svg.select('#rect-gradient')
     .transition()
+    .delay(3000)
     .duration(2000)
     .style('opacity',0);
 
@@ -383,25 +397,25 @@ function redrawFlow(scales,views,barH){
   // transition in sidebar bars for intake and outcome
   d3.selectAll('.bars-intake')
     .transition()
-    .delay(4000)
-    .duration(2000)
+    .delay(2000)
+    .duration(1000)
     .attr('y',function(d){ return barH-scales.scaleCount(d.values.length); })
     .attr('height',function(d){ return scales.scaleCount(d.values.length); });
 
   d3.selectAll('.bars-outcome')
     .transition()
-    .delay(4000)
-    .duration(2000)
+    .delay(2000)
+    .duration(1000)
     .attr('height',function(d){ return scales.scaleCount(d.values.length); });
 
   d3.select('#title-bars')
     .transition()
-    .delay(5000)
+    .delay(3000)
     .text('daily counts');
 
   d3.select('#bar-context-flow')
     .transition()
-    .delay(5000)
+    .delay(4000)
     .style('opacity',1);
 
   d3.selectAll('.counts-intake')
@@ -513,14 +527,14 @@ function animateFlow(obj, barH, barW, colW){
         d3.select('#timeCount')
           .html(obj.months[obj.timeCount.getMonth()]+' '+ (obj.timeCount.getDate() + i));
       }
-      if(i == 30){
+      if(i == 31){
         d3.select('#timeCount')
           .transition()
           .style('opacity',0);
-      }else if(i == 32){
+      }else if(i == 33){
         d3.select('#timeCount')
           .html('flow');
-      }else if(i == 33){
+      }else if(i == 34){
         clearInterval(timeInterval);
         d3.select('#timeCount')
           .transition()

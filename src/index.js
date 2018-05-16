@@ -16,7 +16,7 @@ const pathOpacity = 0.2;
 const pathOpacityDur = 0.8;
 let timeCount = new Date('1/1/2018');
 const oneDay = 1000 * 60 * 60 * 24;
-const dayDuration = 500;
+const dayDuration = 750;
 const months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
 let type;
 let exploreCount = 0;
@@ -61,7 +61,15 @@ idleFunctions.createIdlePage();
 
 d3.select('#btn-idle')
   .on('click',function(){
-    clearInterval(idleFunctions.animationIntervalObj.animationInterval);
+    // clearInterval(idleFunctions.animationIntervalObj.animationInterval);
+    d3.select('#dog-g')
+      .remove();
+    d3.select('#bird-g')
+      .remove();
+    d3.select('#cat-g')
+      .remove();
+    d3.select('#horse-g')
+      .remove();
     idleFunctions.inactivityTime();
     d3.select('#idle')
       .classed('hidden',true);
@@ -273,7 +281,7 @@ function runData(){
 
     // sort data for los
     data.sort(function(a,b){
-      return (b.los_new - a.los_new) /*|| d3.ascending(a.outcome_type, b.outcome_type) || d3.ascending(a.intake_type, b.intake_type) || d3.ascending(a.type, b.type) || a.outcome_date.getTime() - b.outcome_date.getTime()*/;
+      return (b.los_new - a.los_new)|| d3.ascending(a.type, b.type) || a.intake_date.getTime() - b.intake_date.getTime() || a.outcome_date.getTime() - b.outcome_date.getTime();
     })
 
     // rank by los
@@ -392,19 +400,6 @@ function runData(){
     else if(typeMost == 'OTHER'){ typeMost = 'small & furry animals'; }
     else if(typeMost == 'BIRD'){ typeMost = 'birds'; }
     else{ typeMost = 'barnyard animals'; }
-
-    // svg.append('text')
-    //   .text('intake')
-    //   .attr('x', ((-w/2) + 100) + 'px')
-    //   .attr('y', ((-h/2) + 60) + 'px')
-    //   .style('fill','#A9A9A9');
-    //
-    // svg.append('text')
-    //   .text('outcomes')
-    //   .attr('x', ((w/2) - 100) + 'px')
-    //   .attr('y', ((-h/2) + 60) + 'px')
-    //   .style('text-anchor','end')
-    //   .style('fill','#A9A9A9');
 
     //push flow sidebar summary info, calc from intakeAll and outcomeAll to intake and outcome
     const intakeAll = d3.nest()
