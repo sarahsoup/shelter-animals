@@ -438,7 +438,7 @@ function generateSummary(view,obj){
         '<span class="bold">' + ((obj.intakeDuring/obj.totalCount)*100).toFixed(0) + '%</span> entered shelter during month<br/>'+
         '<span class="bold">' + ((obj.outcomeDuring/obj.totalCount)*100).toFixed(0) + '%</span> left shelter during month<br/>'+
         '<span class="bold">' + obj.typeMost + '</span> were the most common animal<br/>'+
-        'the shortest duration in the shelter was <span class="bold">' + obj.losExtent[0] + '</span> days<br/>'+
+        'the shortest duration was <span class="bold">' + obj.losExtent[0] + '</span> days<br/>'+
         'the longest duration was <span class="bold">' + obj.losExtent[1] + '</span> days');
   }else{
     d3.select('#summary-text').html(null);
@@ -476,7 +476,7 @@ function highlightType(type,obj,labelMap){
             '<span class="bold">' + ((d.intakePrior/d.value)*100).toFixed(0) + '%</span> in shelter at beginning of month<br/>'+
             '<span class="bold">' + ((d.intakeDuring/d.value)*100).toFixed(0) + '%</span> entered shelter during month<br/>'+
             '<span class="bold">' + ((d.outcomeDuring/d.value)*100).toFixed(0) + '%</span> left shelter during month<br/>'+
-            'the shortest duration in the shelter was <span class="bold">' + d.losMin + '</span> days<br/>'+
+            'the shortest duration was <span class="bold">' + d.losMin + '</span> days<br/>'+
             'the longest duration was <span class="bold">' + d.losMax + '</span> days');
       }
     }
