@@ -260,7 +260,7 @@ function drawFlow(data,intake,outcome,obj){
       .attr('x',-2*obj.w/4)
       .attr('y',-2*obj.h/5 - 10)
       .attr('width',obj.w)
-      .attr('height',150)
+      .attr('height',0)
       .style('fill','url(#gradient)')
       .style('opacity',0);
 
@@ -351,6 +351,7 @@ function redrawFlow(scales,views,barH){
     .transition()
     .delay(3000)
     .duration(2000)
+    .attr('height',0)
     .style('opacity',0);
 
   d3.selectAll('.paths')
@@ -364,8 +365,8 @@ function redrawFlow(scales,views,barH){
     .style('opacity',views.pathOpacity);
 
   d3.selectAll('.arc')
-    .on('mouseenter', function(d){ interactions.highlightFlow(d.data.key); /*dispatch.call('highlight:flow',null,d.data.key);*/ })
-    .on('mouseleave', function(){ interactions.unhighlight(); /*dispatch.call('unhighlight');*/ })
+    .on('mouseenter', function(d){ interactions.highlightFlow(d.data.key); })
+    .on('mouseleave', function(){ interactions.unhighlight(); })
     .transition()
     .delay(4000)
     .duration(2000)
@@ -434,6 +435,7 @@ function animateFlow(obj, barH, barW, colW){
   svg.selectAll('.axis')
     .style('opacity',0);
   svg.select('#rect-gradient')
+    .attr('height',0)
     .style('opacity',0);
   d3.selectAll('.bars-duration')
     .style('fill','#A9A9A9')

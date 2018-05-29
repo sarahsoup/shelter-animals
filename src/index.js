@@ -61,7 +61,6 @@ idleFunctions.createIdlePage();
 
 d3.select('#btn-idle')
   .on('click',function(){
-    // clearInterval(idleFunctions.animationIntervalObj.animationInterval);
     d3.select('#dog-g')
       .remove();
     d3.select('#bird-g')

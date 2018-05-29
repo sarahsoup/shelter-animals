@@ -77,6 +77,7 @@ function drawDuration(scales,barH,pathOpacityDur){
 
   // visible gradient
   svg.select('#rect-gradient')
+    .attr('height',150)
     .transition()
     .duration(2000)
     .style('opacity',1);

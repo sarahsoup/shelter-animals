@@ -1,9 +1,11 @@
 import * as d3 from 'd3';
+import objects from './index';
 import interactions from './interact';
 import './style.css';
 
 let animationIntervalObj = {};
 let iterationsObj = {};
+let timeoutIteration = 0;
 
 function inactivityTime() {
     let t;
@@ -13,17 +15,22 @@ function inactivityTime() {
 
     function resetTimer() {
         clearTimeout(t);
+        // t = setTimeout(idle, 30000) //30 sec... for testing
         t = setTimeout(idle, 300000) //5 minutes...
     }
 
     function idle() {
-        showIdlePage();
+        console.log('timed out!');
+        // check if idle page has already been created
+        if(document.getElementById('dog-g') == null){
+          showIdlePage();
+        }else{
+          console.log('idle page is already shown');
+        }
     }
 };
 
 function showIdlePage(){
-
-  console.log('timed out!');
 
   interactions.unhighlight();
 

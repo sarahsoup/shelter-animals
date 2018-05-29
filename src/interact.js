@@ -12,6 +12,31 @@ function highlightFlow(type){
   intakeSet = new Set();
   outcomeSet = new Set();
 
+  // unhighlight bars
+  if(d3.select('#btn-views-flow').classed('btn-clicked')){
+    objects.interactVarObj.scaleCount.domain([0,objects.interactVarObj.maxCount]);
+    d3.selectAll('.bars-intake')
+      .transition()
+      .attr('height',function(d){ return objects.interactVarObj.scaleCount(d.values.length); })
+      .attr('y',function(d){ return sideFunctions.barH-objects.interactVarObj.scaleCount(d.values.length); })
+      .style('opacity',1)
+      .style('fill','#A9A9A9');
+    d3.selectAll('.bars-outcome')
+      .transition()
+      .attr('height',function(d){ return objects.interactVarObj.scaleCount(d.values.length); })
+      .style('opacity',1)
+      .style('fill','#A9A9A9');
+  }
+  if(d3.select('#btn-views-duration').classed('btn-clicked')){
+    objects.interactVarObj.scaleHistCount.domain([0,objects.interactVarObj.maxBin]);
+    d3.selectAll('.bars-duration')
+      .transition()
+      .attr('y',function(d){ return (sideFunctions.barH*1.5)-objects.interactVarObj.scaleHistCount(d.length); })
+      .attr('height',function(d){ return objects.interactVarObj.scaleHistCount(d.length); })
+      .style('opacity',1)
+      .style('fill','#A9A9A9');
+  }
+
   if(type=='HMHL'){
     d3.select('#timeCount')
       .html('happy moms healthy litters');
@@ -232,6 +257,31 @@ function highlightType(type, aggIntake, aggOutcome, bins){
 function highlightId(id,type,name){
   intakeSet = new Set();
   outcomeSet = new Set();
+
+  // unhighlight bars
+  if(d3.select('#btn-views-flow').classed('btn-clicked')){
+    objects.interactVarObj.scaleCount.domain([0,objects.interactVarObj.maxCount]);
+    d3.selectAll('.bars-intake')
+      .transition()
+      .attr('height',function(d){ return objects.interactVarObj.scaleCount(d.values.length); })
+      .attr('y',function(d){ return sideFunctions.barH-objects.interactVarObj.scaleCount(d.values.length); })
+      .style('opacity',1)
+      .style('fill','#A9A9A9');
+    d3.selectAll('.bars-outcome')
+      .transition()
+      .attr('height',function(d){ return objects.interactVarObj.scaleCount(d.values.length); })
+      .style('opacity',1)
+      .style('fill','#A9A9A9');
+  }
+  if(d3.select('#btn-views-duration').classed('btn-clicked')){
+    objects.interactVarObj.scaleHistCount.domain([0,objects.interactVarObj.maxBin]);
+    d3.selectAll('.bars-duration')
+      .transition()
+      .attr('y',function(d){ return (sideFunctions.barH*1.5)-objects.interactVarObj.scaleHistCount(d.length); })
+      .attr('height',function(d){ return objects.interactVarObj.scaleHistCount(d.length); })
+      .style('opacity',1)
+      .style('fill','#A9A9A9');
+  }
 
   d3.select('#timeCount')
     .html(name);
